@@ -1,0 +1,23 @@
+name: boot2wrt.img
+
+on:
+  schedule:
+    - cron:  "0 0 * * 0"
+  push:
+    branches:
+    - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Build boot2wrt.img
+        run: sudo /bin/bash boot2wrt/build.sh
+
+      - name: Push to transfer
+        env:
+          WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+        run: bash transfer.sh wet /tmp/boot2wrt.img.gz
