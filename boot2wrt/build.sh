@@ -31,45 +31,50 @@ CONFIG_SERIAL_8250=n
 CONFIG_EARLY_PRINTK=n
 EOF
 
-make image PACKAGES="frr \
-                     frr-babeld \
-                     frr-bfdd \
-                     frr-bgpd \
-                     frr-eigrpd \
-                     frr-fabricd \
-                     frr-isisd \
-                     frr-ldpd \
-                     frr-libfrr \
-                     frr-nhrpd \
-                     frr-ospf6d \
-                     frr-ospfd \
-                     frr-pbrd \
-                     frr-pimd \
-                     frr-ripd \
-                     frr-ripngd \
-                     frr-staticd \
-                     frr-vrrpd \
-                     frr-vtysh \
-                     frr-watchfrr \
-                     frr-zebra \
-                     -ppp \
-                     -ppp-mod-pppoe \
-                     -kmod-3c59x \
-                     -kmod-8139too \
-                     -kmod-button-hotplug \
-                     -kmod-e100 \
-                     -kmod-e1000 \
-                     -kmod-forcedeth \
-                     -kmod-fs-vfat \
-                     -kmod-natsemi \
-                     -kmod-ne2k-pci \
-                     -kmod-pcnet32 \
-                     -kmod-r8169 \
-                     -kmod-sis900 \
-                     -kmod-tg3 \
-                     -kmod-via-rhine \
-                     -kmod-via-velocity"
+make image DISABLED_SERVICES="network odhcpd cron gpio_switch led sysntpd" PACKAGES="frr \
+frr-babeld \
+frr-bfdd \
+frr-bgpd \
+frr-eigrpd \
+frr-fabricd \
+frr-isisd \
+frr-ldpd \
+frr-libfrr \
+frr-nhrpd \
+frr-ospf6d \
+frr-ospfd \
+frr-pbrd \
+frr-pimd \
+frr-ripd \
+frr-ripngd \
+frr-staticd \
+frr-vrrpd \
+frr-vtysh \
+frr-watchfrr \
+frr-zebra \
+-ppp \
+-ppp-mod-pppoe \
+-dnsmasq \
+-dropbear \
+-fstools \
+-logd \
+-opkg \
+-kmod-3c59x \
+-kmod-8139too \
+-kmod-button-hotplug \
+-kmod-e100 \
+-kmod-e1000 \
+-kmod-forcedeth \
+-kmod-fs-vfat \
+-kmod-natsemi \
+-kmod-ne2k-pci \
+-kmod-pcnet32 \
+-kmod-r8169 \
+-kmod-sis900 \
+-kmod-tg3 \
+-kmod-via-rhine \
+-kmod-via-velocity"
 
 #cp bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz /tmp/boot2wrt-$(date "+%Y%m%d").img.gz
-cp bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz /tmp/boot2wrt.img.gz
-
+gzip -d -c bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz > /tmp/boot2wrt.raw
+qemu-img convert -f raw -O qcow2 -c /tmp/boot2wrt.raw /tmp/boot2wrt.img

@@ -20,4 +20,4 @@ jobs:
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
-        run: bash transfer.sh wet /tmp/boot2wrt.img.gz
+        run: bash transfer.sh wet /tmp/boot2wrt.img
