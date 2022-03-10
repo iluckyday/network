@@ -76,5 +76,5 @@ frr-zebra \
 -kmod-via-velocity"
 
 #cp bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz /tmp/boot2wrt-$(date "+%Y%m%d").img.gz
-gzip -d -c bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz > /tmp/boot2wrt.raw
+gzip -d -c bin/targets/x86/generic/openwrt-x86-generic-generic-ext4-combined.img.gz > /tmp/boot2wrt.raw || true
 qemu-img convert -f raw -O qcow2 -c /tmp/boot2wrt.raw /tmp/boot2wrt.img
