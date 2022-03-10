@@ -1,6 +1,9 @@
 #!/bin/sh
 set -ex
 
+apt update
+apt install -y qemu-utils
+
 OPENWRTURL="https://downloads.openwrt.org/snapshots/targets/x86/generic/openwrt-imagebuilder-x86-generic.Linux-x86_64.tar.xz"
 curl -skL ${OPENWRTURL} | tar -xJ
 
