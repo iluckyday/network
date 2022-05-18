@@ -106,7 +106,7 @@ Name=virbr0
 
 [Network]
 Address=192.168.122.1/24
-LinkLocalAddressing=no
+ConfigureWithoutCarrier=yes
 IPMasquerade=ipv4
 DHCPServer=yes
 EOF
