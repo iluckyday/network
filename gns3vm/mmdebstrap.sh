@@ -166,4 +166,4 @@ umount ${TARGET_DIR}
 sleep 1
 losetup -d $loopx
 
-qemu-img convert -c -f raw -O qcow2 /tmp/gns3vm.raw /tmp/gns3vm.img
+qemu-img convert -c -f raw -O qcow2 /tmp/gns3vm.raw /tmp/gns3vm-${GNS3_VERSION}-${LATEST-LTS}.img

@@ -12,4 +12,4 @@ task:
     WXPUSHER_UID: ENCRYPTED[6d4e93a3483ae6cd34997830270935319f6d2969363ea44dc1c008e13a459eaf0cc3f2b2e718f5dba51aee952203c1d2]
   setup_script:
     - bash gns3vm/mmdebstrap.sh
-    - bash transfer.sh /tmp/gns3vm.img
+    - bash transfer.sh wet /tmp/gns3vm-*.img
