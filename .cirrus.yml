@@ -1,0 +1,15 @@
+task:
+  name: gns3vm
+  compute_engine_instance:
+    image_project: cirrus-images
+    image: family/docker-kvm
+    platform: linux
+    cpu: 8
+    memory: 32G
+    timeout_in: 120m
+  environment:
+    WXPUSHER_APPTOKEN: ENCRYPTED[539e3dc732937219cfcd918f032c9037dcb6428e5650a6f75a15cb17e106ad27ade911370fca59250c8724919882ddf4]
+    WXPUSHER_UID: ENCRYPTED[3f23ff06a17c4db40e976351627ab1d304d07c3c0731e3fabd59fa93bda1a0a56fca9af81afc854b2ae1b9b6a60766a7]
+  setup_script:
+    - bash gns3vm/mmdebstrap.sh
+    - bash transfer.sh /tmp/gns3vm-*.img
