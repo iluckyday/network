@@ -13,6 +13,7 @@ enable_services="systemd-networkd.service gns3-server.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
+add-apt-repository ppa:gns3/ppa
 apt update
 apt install -y --no-install-recommends mmdebstrap qemu-utils
 
