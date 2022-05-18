@@ -26,7 +26,7 @@ mkfs.ext4 -F -L gns3vm-root -b 1024 -I 128 -O "^has_journal" $loopx
 mkdir -p ${TARGET_DIR}
 mount $loopx ${TARGET_DIR}
 
-mmdebstrap --quiet \
+mmdebstrap --debug \
            --aptopt='Apt::Install-Recommends "false"' \
            --aptopt='Apt::Install-Suggests "false"' \
            --aptopt='APT::Authentication  "false"' \
