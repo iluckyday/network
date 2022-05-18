@@ -8,7 +8,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",gns3-server,python3-six,locales"
+include_apps+=",gns3-server,dynamips,python3-six,locales"
 enable_services="systemd-networkd.service gns3-server.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
@@ -106,7 +106,8 @@ Name=virbr0
 
 [Network]
 Address=192.168.122.1/24
-IPMasquerade=yes
+LinkLocalAddressing=no
+IPMasquerade=ipv4
 DHCPServer=yes
 EOF
 
@@ -166,4 +167,4 @@ umount ${TARGET_DIR}
 sleep 1
 losetup -d $loopx
 
-qemu-img convert -c -f raw -O qcow2 /tmp/gns3vm.raw /tmp/gns3vm-${GNS3_VERSION}-${LATEST-LTS}.img
+qemu-img convert -c -f raw -O qcow2 /tmp/gns3vm.raw /tmp/gns3vm-${GNS3_VERSION}-${LATEST_LTS}.img
