@@ -5,9 +5,10 @@ LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") 
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
-include_apps="systemd,systemd-sysv,ca-certificates"
+include_apps="systemd,systemd-sysv,openssh-server,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-enable_services="systemd-networkd.service"
+include_apps+=",libsctp1"
+enable_services="systemd-networkd.service ssh.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -19,7 +20,7 @@ TARGET_DIR=/tmp/ueransim
 qemu-img create -f raw /tmp/ueransim.raw 22G
 loopx=$(losetup --show -f -P /tmp/ueransim.raw)
 
-mkfs.ext4 -F -L ueransim-root -b 1024 -I 128 -O "^has_journal" $loopx
+mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
 
 mkdir -p ${TARGET_DIR}
 mount $loopx ${TARGET_DIR}

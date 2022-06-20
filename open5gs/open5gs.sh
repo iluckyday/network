@@ -7,12 +7,12 @@ OPEN5GS_VERSION=$(curl -kL https://launchpad.net/~open5gs/+archive/ubuntu/latest
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
-include_apps="systemd,systemd-sysv,ca-certificates"
+include_apps="systemd,systemd-sysv,ca-certificates,openssh-server"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",procps,locales"
-include_apps+=",libsctp1"
+include_apps+=",libsctp1,tcpdump"
 include_apps+=",open5gs"
-enable_services="systemd-networkd.service"
+enable_services="systemd-networkd.service ssh.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -71,6 +71,11 @@ EOF
 mkdir -p ${TARGET_DIR}/root/.ssh
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
 chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
+
+sed -i 's/#\?\(PerminRootLogin\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PubkeyAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PermitEmptyPasswords\s*\).*$/\1 no/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
 
 mkdir -p ${TARGET_DIR}/etc/systemd/system-environment-generators
 cat << EOF > ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
