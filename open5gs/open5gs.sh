@@ -46,7 +46,7 @@ mmdebstrap --debug \
            --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
            --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
            --components="main restricted universe multiverse" \
-           --variant=essential \
+           --variant=apt \
            --include=${include_apps} \
            ${LATEST_LTS} \
            ${TARGET_DIR} \
