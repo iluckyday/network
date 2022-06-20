@@ -2,29 +2,24 @@
 set -ex
 
 LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") && ($0 !~ "Beta") {sub(/\(/,"",$(NF-1));print tolower($(NF-1));exit}')
-LATEST_LTS=focal
-OPEN5GS_VERSION=$(curl -kL https://launchpad.net/~open5gs/+archive/ubuntu/latest | awk -F'~' '/~'''$LATEST_LTS'''/ {gsub(/ /,"",$1);print $1}')
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",libsctp1"
-include_apps+=",open5gs"
 enable_services="systemd-networkd.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
-add-apt-repository ppa:open5gs/latest
 apt update
 apt install -y --no-install-recommends mmdebstrap qemu-utils
 
-TARGET_DIR=/tmp/open5gs
+TARGET_DIR=/tmp/ueransim
 
-qemu-img create -f raw /tmp/open5gs.raw 504G
-loopx=$(losetup --show -f -P /tmp/open5gs.raw)
+qemu-img create -f raw /tmp/ueransim.raw 22G
+loopx=$(losetup --show -f -P /tmp/ueransim.raw)
 
-mkfs.ext4 -F -L open5gs-root -b 1024 -I 128 -O "^has_journal" $loopx
+mkfs.ext4 -F -L ueransim-root -b 1024 -I 128 -O "^has_journal" $loopx
 
 mkdir -p ${TARGET_DIR}
 mount $loopx ${TARGET_DIR}
@@ -40,8 +35,8 @@ mmdebstrap --debug \
            --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
-           --customize-hook='echo "root:open5gs" | chroot "$1" chpasswd' \
-           --customize-hook='echo open5gs > "$1/etc/hostname"' \
+           --customize-hook='echo "root:ueransim" | chroot "$1" chpasswd' \
+           --customize-hook='echo ueransim > "$1/etc/hostname"' \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
            --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
@@ -53,9 +48,7 @@ mmdebstrap --debug \
            ${TARGET_DIR} \
            "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS} main restricted universe multiverse" \
            "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS}-updates main restricted universe multiverse" \
-           "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS}-security main restricted universe multiverse" \
-           "deb [trusted=yes] https://repo.mongodb.org/apt/ubuntu ${LATEST_LTS}/mongodb-org/5.0 multiverse" \
-           "deb [trusted=yes] https://ppa.launchpadcontent.net/open5gs/latest/ubuntu ${LATEST_LTS} main"
+           "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS}-security main restricted universe multiverse"
 
 mount -t proc none ${TARGET_DIR}/proc
 mount -o bind /sys ${TARGET_DIR}/sys
@@ -65,26 +58,6 @@ cat << EOF > ${TARGET_DIR}/etc/fstab
 LABEL=ubuntu-root /        ext4  defaults,noatime                0 0
 tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
-EOF
-
-mkdir -p ${TARGET_DIR}/etc/systemd/system-environment-generators
-cat << EOF > ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
-#!/bin/sh
-echo 'PYTHONDONTWRITEBYTECODE=1'
-echo 'PYTHONSTARTUP=/usr/lib/pythonstartup'
-EOF
-chmod +x ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
-
-cat << EOF > ${TARGET_DIR}/etc/profile.d/python.sh
-#!/bin/sh
-export PYTHONDONTWRITEBYTECODE=1 PYTHONSTARTUP=/usr/lib/pythonstartup
-EOF
-
-cat << EOF > ${TARGET_DIR}/usr/lib/pythonstartup
-import readline
-import time
-readline.add_history("# " + time.asctime())
-readline.set_history_length(-1)
 EOF
 
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
@@ -97,15 +70,15 @@ IPv6AcceptRA=yes
 EOF
 
 cat << EOF > ${TARGET_DIR}/root/.bashrc
-export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null PYTHONWARNINGS=ignore
+export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null
 EOF
 
 mkdir -p ${TARGET_DIR}/boot/syslinux
 cat << EOF > ${TARGET_DIR}/boot/syslinux/syslinux.cfg
 PROMPT 0
 TIMEOUT 0
-DEFAULT open5gs
-LABEL open5gs
+DEFAULT ueransim
+LABEL ueransim
         LINUX /boot/vmlinuz
         INITRD /boot/initrd.img
         APPEND root=LABEL=ubuntu-root console=tty1 console=ttyS0 quiet
@@ -114,16 +87,15 @@ EOF
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
 systemctl disable $disable_services
-
-rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 "
 
-echo 'open5gs' > ${TARGET_DIR}/etc/hostname
+echo 'ueransim' > ${TARGET_DIR}/etc/hostname
 
 echo UERANSIM
-tar -xf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin
+UERANSIM_VERSION=$(ls /tmp/UERANSIM-*.tar.gz | sed -e 's|/tmp/UERANSIM-||' -e 's|.tar.gz||')
+tar -xf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/usr/bin
 
 sleep 1
 sync ${TARGET_DIR}
@@ -135,4 +107,4 @@ umount ${TARGET_DIR}
 sleep 1
 losetup -d $loopx
 
-qemu-img convert -c -f raw -O qcow2 /tmp/open5gs.raw /tmp/open5gs-${OPEN5GS_VERSION}-${LATEST_LTS}.img
+qemu-img convert -c -f raw -O qcow2 /tmp/ueransim.raw /tmp/ueransim-${UERANSIM_VERSION}-${LATEST_LTS}.img
