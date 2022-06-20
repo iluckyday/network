@@ -7,7 +7,7 @@ LINUX_KERNEL=linux-image-generic
 
 include_apps="systemd,systemd-sysv,openssh-server,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",libsctp1,tcpdump"
+include_apps+=",libsctp1,tcpdump,iproute2"
 enable_services="systemd-networkd.service ssh.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
