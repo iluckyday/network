@@ -2,6 +2,7 @@
 set -ex
 
 LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") && ($0 !~ "Beta") {sub(/\(/,"",$(NF-1));print tolower($(NF-1));exit}')
+LATEST_LTS=focal
 OPEN5GS_VERSION=$(curl -kL https://launchpad.net/~open5gs/+archive/ubuntu/latest | awk -F'~' '/~'''$LATEST_LTS'''/ {gsub(/ /,"",$1);print $1}')
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
@@ -53,6 +54,7 @@ mmdebstrap --debug \
            "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS} main restricted universe multiverse" \
            "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS}-updates main restricted universe multiverse" \
            "deb [trusted=yes] ${IMIRROR} ${LATEST_LTS}-security main restricted universe multiverse" \
+           "deb [trusted=yes] https://repo.mongodb.org/apt/ubuntu ${LATEST_LTS}/mongodb-org/5.0 multiverse" \
            "deb [trusted=yes] https://ppa.launchpadcontent.net/open5gs/latest/ubuntu ${LATEST_LTS} main"
 
 mount -t proc none ${TARGET_DIR}/proc

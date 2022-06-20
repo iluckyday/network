@@ -2,6 +2,7 @@
 set -ex
 
 LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") && ($0 !~ "Beta") {sub(/\(/,"",$(NF-1));print tolower($(NF-1));exit}')
+LATEST_LTS=focal
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 
 include_apps+="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
