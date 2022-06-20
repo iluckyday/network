@@ -5,7 +5,7 @@ LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") 
 LATEST_LTS=focal
 OPEN5GS_VERSION=$(curl -kL https://launchpad.net/~open5gs/+archive/ubuntu/latest | awk -F'~' '/~'''$LATEST_LTS'''/ {gsub(/ /,"",$1);print $1}')
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
-LINUX_KERNEL=linux-image-kvm
+LINUX_KERNEL=linux-image-generic
 
 include_apps="systemd,systemd-sysv,ca-certificates,openssh-server"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"

@@ -3,11 +3,11 @@ set -ex
 
 LATEST_LTS=$(curl -skL https://releases.ubuntu.com | awk '($0 ~ "p-list__item") && ($0 !~ "Beta") {sub(/\(/,"",$(NF-1));print tolower($(NF-1));exit}')
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
-LINUX_KERNEL=linux-image-kvm
+LINUX_KERNEL=linux-image-generic
 
 include_apps="systemd,systemd-sysv,openssh-server,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",libsctp1"
+include_apps+=",libsctp1,tcpdump"
 enable_services="systemd-networkd.service ssh.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
