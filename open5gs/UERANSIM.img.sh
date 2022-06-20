@@ -37,7 +37,6 @@ mmdebstrap --debug \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
            --customize-hook='echo "root:ueransim" | chroot "$1" chpasswd' \
            --customize-hook='echo ueransim > "$1/etc/hostname"' \
-           --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
            --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
            --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
