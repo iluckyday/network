@@ -99,7 +99,7 @@ EOF
 
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
 [Match]
-Name=en*
+Name=en*10
 
 [Network]
 DHCP=yes

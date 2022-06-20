@@ -66,7 +66,7 @@ chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
 
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
 [Match]
-Name=en*
+Name=en*10
 
 [Network]
 DHCP=yes
