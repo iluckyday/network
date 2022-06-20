@@ -39,8 +39,9 @@ curl -skL https://github.com/aligungr/UERANSIM/archive/refs/tags/$UERANSIM_VERSI
 
 chroot ${TARGET_DIR} /bin/bash -c "
 cd /root/UERANSIM-*
-make -j
+make
 "
+# make -j
 
 cd ${TARGET_DIR}/root/UERANSIM-*/build
 tar -cvzf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz nr-gnb nr-ue nr-cli
