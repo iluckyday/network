@@ -25,7 +25,7 @@ TARGET_DIR=/tmp/open5gs
 qemu-img create -f raw /tmp/open5gs.raw 504G
 loopx=$(losetup --show -f -P /tmp/open5gs.raw)
 
-mkfs.ext4 -F -L open5gs-root -b 1024 -I 128 -O "^has_journal" $loopx
+mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
 
 mkdir -p ${TARGET_DIR}
 mount $loopx ${TARGET_DIR}
@@ -68,6 +68,10 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
+mkdir -p ${TARGET_DIR}/root/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
+chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
+
 mkdir -p ${TARGET_DIR}/etc/systemd/system-environment-generators
 cat << EOF > ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
 #!/bin/sh
@@ -109,7 +113,7 @@ DEFAULT open5gs
 LABEL open5gs
         LINUX /boot/vmlinuz
         INITRD /boot/initrd.img
-        APPEND root=LABEL=ubuntu-root console=tty1 console=ttyS0 quiet
+        APPEND root=LABEL=ubuntu-root quiet
 EOF
 
 chroot ${TARGET_DIR} /bin/bash -c "
@@ -124,7 +128,7 @@ extlinux -i /boot/syslinux
 echo 'open5gs' > ${TARGET_DIR}/etc/hostname
 
 echo UERANSIM
-tar -xf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin
+tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin
 
 sleep 1
 sync ${TARGET_DIR}

@@ -43,4 +43,4 @@ make
 "
 
 cd ${TARGET_DIR}/root/UERANSIM-*/build
-tar -czf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz nr-gnb nr-ue nr-cli
+tar -cvzf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz nr-gnb nr-ue nr-cli
