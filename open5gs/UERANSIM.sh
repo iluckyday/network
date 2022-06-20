@@ -25,7 +25,7 @@ mmdebstrap --debug \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
            --components="main restricted universe multiverse" \
-           --variant=essential \
+           --variant=apt \
            --include=${include_apps} \
            ${LATEST_LTS} \
            ${TARGET_DIR} \

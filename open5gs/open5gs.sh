@@ -35,6 +35,8 @@ mmdebstrap --debug \
            --aptopt='APT::Get::AllowUnauthenticated "true"' \
            --aptopt='Acquire::AllowInsecureRepositories "true"' \
            --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
+           --aptopt='DPkg::Options::=--force-depends' \
+           --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
            --customize-hook='echo "root:open5gs" | chroot "$1" chpasswd' \
