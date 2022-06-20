@@ -9,6 +9,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
+include_apps+=",procps,locales"
 include_apps+=",libsctp1"
 include_apps+=",open5gs"
 enable_services="systemd-networkd.service"

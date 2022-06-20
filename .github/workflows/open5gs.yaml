@@ -16,6 +16,9 @@ jobs:
       - name: Build UERANSIM
         run: sudo /bin/bash open5gs/UERANSIM.sh
 
+      - name: Build UERANSIM.img
+        run: sudo /bin/bash open5gs/UERANSIM.img.sh
+
       - name: Build open5gs.img
         run: sudo /bin/bash open5gs/open5gs.sh
 
@@ -23,4 +26,6 @@ jobs:
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
-        run: bash transfer.sh wet /tmp/open5gs-*.img
+        run: |
+          bash transfer.sh wet /tmp/ueransim-*.img
+          bash transfer.sh wet /tmp/open5gs-*.img
