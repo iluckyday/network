@@ -44,8 +44,8 @@ mmdebstrap --debug \
            --dpkgopt='path-exclude=/usr/share/locale/*' \
            --dpkgopt='path-include=/usr/share/locale/en*' \
            --dpkgopt='path-include=/usr/share/locale/locale.alias' \
-           --dpkgopt='path-exclude=/usr/*mongosh' \
-           --dpkgopt='path-exclude=/usr/*mongos' \
+           --dpkgopt='path-exclude=/usr/bin/mongosh' \
+           --dpkgopt='path-exclude=/usr/bin/mongos' \
            --dpkgopt='path-exclude=/usr/bin/bsondump' \
            --dpkgopt='path-exclude=/usr/bin/mongodump' \
            --dpkgopt='path-exclude=/usr/bin/mongoexport' \
