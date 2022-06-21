@@ -36,6 +36,38 @@ mmdebstrap --debug \
            --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
+           --dpkgopt='path-exclude=/lib/firmware/*' \
+           --dpkgopt='path-exclude=/lib/modules/*/kernel/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/arch/x86/events/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/arch/x86/kvm/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/crypto/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/ata/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/block/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/char/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/firmware/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/gpu/drm/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/gpu/drm/ttm/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/i2c/busses/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/input/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/input/mouse/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/input/serio/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/macintosh/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/mfd/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/net/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/parport/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/powercap/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/pps/clients/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/ptp/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/staging/comedi/drivers/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/drivers/video/fbdev/core/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/fs/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/fs/autofs/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/lib/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/core/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv4/netfilter/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/netfilter/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/sched/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/sctp/*' \
            --customize-hook='echo "root:ueransim" | chroot "$1" chpasswd' \
            --customize-hook='echo ueransim > "$1/etc/hostname"' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
