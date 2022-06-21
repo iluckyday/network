@@ -64,13 +64,14 @@ mmdebstrap --debug \
            --dpkgopt='path-include=/lib/modules/*/kernel/drivers/staging/comedi/drivers/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/drivers/video/fbdev/core/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/fs/*' \
-           --dpkgopt='path-include=/lib/modules/*/kernel/fs/autofs/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/lib/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/core/*' \
-           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv4/netfilter/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv4/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv6/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/netfilter/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sched/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sctp/*' \
+           --dpkgopt='path-include=/lib/modules/*/sound*' \
            --customize-hook='echo "root:ueransim" | chroot "$1" chpasswd' \
            --customize-hook='echo ueransim > "$1/etc/hostname"' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \

@@ -79,13 +79,14 @@ mmdebstrap --debug \
            --dpkgopt='path-include=/lib/modules/*/kernel/drivers/staging/comedi/drivers/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/drivers/video/fbdev/core/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/fs/*' \
-           --dpkgopt='path-include=/lib/modules/*/kernel/fs/autofs/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/lib/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/core/*' \
-           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv4/netfilter/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv4/*' \
+           --dpkgopt='path-include=/lib/modules/*/kernel/net/ipv6/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/netfilter/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sched/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sctp/*' \
+           --dpkgopt='path-include=/lib/modules/*/sound*' \
            --customize-hook='echo "root:open5gs" | chroot "$1" chpasswd' \
            --customize-hook='echo open5gs > "$1/etc/hostname"' \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
