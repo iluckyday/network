@@ -119,7 +119,7 @@ mkdir -p ${TARGET_DIR}/root/.ssh
 echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
 chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
 
-sed -i 's/#\?\(PerminRootLogin\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
 sed -i 's/#\?\(PubkeyAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
 sed -i 's/#\?\(PermitEmptyPasswords\s*\).*$/\1 no/' ${TARGET_DIR}/etc/ssh/sshd_config
 sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
@@ -180,7 +180,9 @@ extlinux -i /boot/syslinux
 echo 'open5gs' > ${TARGET_DIR}/etc/hostname
 
 echo UERANSIM
-tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin
+mkdir -p ${TARGET_DIR}/etc/ueransim
+tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
+tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
 
 sleep 1
 sync ${TARGET_DIR}

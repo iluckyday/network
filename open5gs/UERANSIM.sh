@@ -44,4 +44,5 @@ make
 # make -j
 
 cd ${TARGET_DIR}/root/UERANSIM-*/build
+cp ../config/* .
 tar -cvzf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz *
