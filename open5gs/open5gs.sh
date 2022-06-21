@@ -86,7 +86,8 @@ mmdebstrap --debug \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/netfilter/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sched/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/net/sctp/*' \
-           --dpkgopt='path-include=/lib/modules/*/sound*' \
+           --dpkgopt='path-exclude=/lib/modules/*sound*' \
+           --dpkgopt='path-exclude=/lib/modules/*wireless*' \
            --customize-hook='echo "root:open5gs" | chroot "$1" chpasswd' \
            --customize-hook='echo open5gs > "$1/etc/hostname"' \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
