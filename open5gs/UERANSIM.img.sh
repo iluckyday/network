@@ -36,6 +36,9 @@ mmdebstrap --debug \
            --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
+           --dpkgopt='path-exclude=/usr/share/locale/*' \
+           --dpkgopt='path-include=/usr/share/locale/en*' \
+           --dpkgopt='path-include=/usr/share/locale/locale.alias' \
            --dpkgopt='path-exclude=/lib/firmware/*' \
            --dpkgopt='path-exclude=/lib/modules/*/kernel/*' \
            --dpkgopt='path-include=/lib/modules/*/kernel/arch/x86/events/*' \
