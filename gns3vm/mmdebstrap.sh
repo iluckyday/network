@@ -19,7 +19,7 @@ apt install -y --no-install-recommends mmdebstrap qemu-utils
 
 TARGET_DIR=/tmp/gns3vm
 
-qemu-img create -f raw /tmp/gns3vm.raw 504G
+qemu-img create -f raw /tmp/gns3vm.raw 2G
 loopx=$(losetup --show -f -P /tmp/gns3vm.raw)
 
 mkfs.ext4 -F -L gns3vm-root -b 1024 -I 128 -O "^has_journal" $loopx
@@ -147,6 +147,8 @@ Restart=on-failure
 WantedBy=multi-user.target
 EOF
 
+echo 'gns3vm' > ${TARGET_DIR}/etc/hostname
+
 chroot ${TARGET_DIR} /bin/bash -c "
 sed -i '/googletagmanager/d' /usr/share/gns3/gns3-server/lib/python*/site-packages/gns3server/static/web-ui/index.html
 sed -i -e 's%https://d8be3a98530f49eb90968ff396db326c@o19455.ingest.sentry.io/842726%%g' -e 's%https://servedbyadbutler.com/adserve/;ID=165803;size=0x0;setID=371476;type=json;%%g' -e 's%crash_reports:!0%crash_reports:void 0%g' -e 's%anonymous_statistics:!0%anonymous_statistics:void 0%g' -e 's/this.openConsolesInWidget=!1/this.openConsolesInWidget=1/' /usr/share/gns3/gns3-server/lib/python*/site-packages/gns3server/static/web-ui/main.*.js
@@ -154,9 +156,13 @@ systemctl enable $enable_services
 systemctl disable $disable_services
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
+dd if=/dev/zero of=/tmp/bigfile
+sync
+sync
+rm /tmp/bigfile
+sync
+sync
 "
-
-echo 'gns3vm' > ${TARGET_DIR}/etc/hostname
 
 sync ${TARGET_DIR}
 umount ${TARGET_DIR}/dev ${TARGET_DIR}/proc ${TARGET_DIR}/sys
