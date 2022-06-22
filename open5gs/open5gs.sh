@@ -181,8 +181,8 @@ echo 'open5gs' > ${TARGET_DIR}/etc/hostname
 
 echo UERANSIM
 mkdir -p ${TARGET_DIR}/etc/ueransim
-tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
-tar -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
+tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
+tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
 
 sleep 1
 sync ${TARGET_DIR}

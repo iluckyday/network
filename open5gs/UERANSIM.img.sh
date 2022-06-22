@@ -17,7 +17,7 @@ apt install -y --no-install-recommends mmdebstrap qemu-utils
 
 TARGET_DIR=/tmp/ueransim
 
-qemu-img create -f raw /tmp/ueransim.raw 22G
+qemu-img create -f raw /tmp/ueransim.raw 24G
 loopx=$(losetup --show -f -P /tmp/ueransim.raw)
 
 mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
@@ -143,8 +143,8 @@ echo UERANSIM
 UERANSIM_VERSION=$(ls /tmp/UERANSIM-*.tar.gz | sed -e 's|/tmp/UERANSIM-||' -e 's|.tar.gz||')
 
 mkdir ${TARGET_DIR}/etc/ueransim
-tar -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
-tar -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
+tar --wildcards -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
+tar --wildcards -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
 
 sleep 1
 sync ${TARGET_DIR}
