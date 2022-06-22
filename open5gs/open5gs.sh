@@ -22,7 +22,7 @@ apt install -y --no-install-recommends mmdebstrap qemu-utils
 
 TARGET_DIR=/tmp/open5gs
 
-qemu-img create -f raw /tmp/open5gs.raw 504G
+qemu-img create -f raw /tmp/open5gs.raw 2G
 loopx=$(losetup --show -f -P /tmp/open5gs.raw)
 
 mkfs.ext4 -F -L ubuntu-root -b 1024 -I 128 -O "^has_journal" $loopx
