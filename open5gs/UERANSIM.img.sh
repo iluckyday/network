@@ -130,13 +130,6 @@ LABEL ueransim
         APPEND root=LABEL=ubuntu-root console=tty1 console=ttyS0 quiet
 EOF
 
-chroot ${TARGET_DIR} /bin/bash -c "
-systemctl enable $enable_services
-systemctl disable $disable_services
-dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
-extlinux -i /boot/syslinux
-"
-
 echo 'ueransim' > ${TARGET_DIR}/etc/hostname
 
 echo UERANSIM
@@ -145,6 +138,20 @@ UERANSIM_VERSION=$(ls /tmp/UERANSIM-*.tar.gz | sed -e 's|/tmp/UERANSIM-||' -e 's
 mkdir ${TARGET_DIR}/etc/ueransim
 tar --wildcards -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
 tar --wildcards -xvf /tmp/UERANSIM-${UERANSIM_VERSION}.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
+
+chroot ${TARGET_DIR} /bin/bash -c "
+systemctl enable $enable_services
+systemctl disable $disable_services
+dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
+extlinux -i /boot/syslinux
+sleep 1
+dd if=/dev/zero of=/tmp/bigfile
+sync
+sync
+rm /tmp/bigfile
+sync
+sync
+"
 
 sleep 1
 sync ${TARGET_DIR}

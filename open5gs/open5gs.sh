@@ -168,6 +168,13 @@ LABEL open5gs
         APPEND root=LABEL=ubuntu-root quiet
 EOF
 
+echo 'open5gs' > ${TARGET_DIR}/etc/hostname
+
+echo UERANSIM
+mkdir -p ${TARGET_DIR}/etc/ueransim
+tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
+tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
+
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
 systemctl disable $disable_services
@@ -175,14 +182,13 @@ systemctl disable $disable_services
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
+dd if=/dev/zero of=/tmp/bigfile
+sync
+sync
+rm /tmp/bigfile
+sync
+sync
 "
-
-echo 'open5gs' > ${TARGET_DIR}/etc/hostname
-
-echo UERANSIM
-mkdir -p ${TARGET_DIR}/etc/ueransim
-tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/etc/ueransim *.yaml
-tar --wildcards -xvf /tmp/UERANSIM-*.tar.gz -C ${TARGET_DIR}/usr/bin nr-* libdevbnd.so
 
 sleep 1
 sync ${TARGET_DIR}
