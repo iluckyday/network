@@ -8,7 +8,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",gns3-server,dynamips,python3-six,locales"
+include_apps+=",gns3-server,dynamips,python3-six,locales,docker.io"
 enable_services="systemd-networkd.service gns3-server.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
 
