@@ -22,12 +22,12 @@ mmdebstrap --debug \
            --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
            --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
-           --components="main restricted universe multiverse" \
+           --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
            ${DVERSION} \
            ${TARGET_DIR} \
-           "deb ${MIRROR} ${DVERSION} main contrib non-free"
+           "deb [trusted=yes] ${MIRROR} ${DVERSION} main contrib non-free"
 
 sleep 2
 
