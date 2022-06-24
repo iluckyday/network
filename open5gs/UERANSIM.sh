@@ -8,7 +8,7 @@ include_apps+="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
 
 export DEBIAN_FRONTEND=noninteractiv
 apt update
-apt install -y --no-install-recommends mmdebstrap debian-keyring debian-archive-keyring debian-ports-archive-keyring
+apt install -y --no-install-recommends mmdebstrap
 
 TARGET_DIR=/tmp/ueransim
 mkdir -p ${TARGET_DIR}

@@ -15,7 +15,7 @@ disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils debian-keyring debian-archive-keyring debian-ports-archive-keyring
+apt install -y --no-install-recommends mmdebstrap qemu-utils
 
 TARGET_DIR=/tmp/open5gs
 
