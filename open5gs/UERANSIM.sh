@@ -8,7 +8,7 @@ include_apps+="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
 
 export DEBIAN_FRONTEND=noninteractiv
 apt update
-apt install -y --no-install-recommends mmdebstrap
+apt install -y --no-install-recommends mmdebstrap debian-keyring debian-archive-keyring debian-ports-archive-keyring
 
 TARGET_DIR=/tmp/ueransim
 mkdir -p ${TARGET_DIR}
@@ -27,7 +27,7 @@ mmdebstrap --debug \
            --include=${include_apps} \
            ${DVERSION} \
            ${TARGET_DIR} \
-           "deb [trusted=yes] ${MIRROR} ${DVERSION} main contrib non-free"
+           "deb ${MIRROR} ${DVERSION} main contrib non-free"
 
 sleep 2
 
