@@ -1,4 +1,4 @@
-name: open5gs.img
+name: clab.img
 
 on:
   schedule:
@@ -13,15 +13,15 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Build UERANSIM
-        run: sudo /bin/bash open5gs/UERANSIM.sh
+      - name: Build
+        run: sudo /bin/bash clab/build.sh
 
-      - name: Build open5gs.img
-        run: sudo /bin/bash open5gs/open5gs.sh
+      - name: Build clab.img
+        run: sudo /bin/bash clab/clab.sh
 
       - name: Push to transfer
         env:
           WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
         run: |
-          bash transfer.sh wet /tmp/open5gs-*.img
+          bash transfer.sh wet /tmp/clab-*.img
