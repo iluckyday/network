@@ -9,7 +9,7 @@ include_apps="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
 # free5GC Control-Plane
 include_apps+=",golang"
 # free5GC User-Plane
-include_apps+=",autoconf,libtool,pkg-config,libmnl-dev,libyaml-dev"
+include_apps+=",automake,autoconf,libtool,pkg-config,libmnl-dev,libyaml-dev"
 
 export DEBIAN_FRONTEND=noninteractiv
 apt update
@@ -19,12 +19,8 @@ TARGET_DIR=/tmp/build
 mkdir -p ${TARGET_DIR}
 
 mmdebstrap --debug \
-           --aptopt='APT::Authentication "false"' \
-           --aptopt='APT::Get::AllowUnauthenticated "true"' \
-           --aptopt='Acquire::AllowInsecureRepositories "true"' \
-           --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
-           --dpkgopt='force-depends' \
-           --dpkgopt='no-debsig' \
+           --aptopt='Apt::Install-Recommends "true"' \
+           --aptopt='Apt::Install-Suggests "true"' \
            --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
