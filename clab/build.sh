@@ -21,6 +21,12 @@ mkdir -p ${TARGET_DIR}
 mmdebstrap --debug \
            --aptopt='Apt::Install-Recommends "true"' \
            --aptopt='Apt::Install-Suggests "true"' \
+           --aptopt='APT::Authentication "false"' \
+           --aptopt='APT::Get::AllowUnauthenticated "true"' \
+           --aptopt='Acquire::AllowInsecureRepositories "true"' \
+           --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
+           --aptopt='DPkg::Options::=--force-depends' \
+           --dpkgopt='force-depends' \
            --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
