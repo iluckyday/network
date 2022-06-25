@@ -19,8 +19,6 @@ TARGET_DIR=/tmp/build
 mkdir -p ${TARGET_DIR}
 
 mmdebstrap --debug \
-           --aptopt='Apt::Install-Recommends "false"' \
-           --aptopt='Apt::Install-Suggests "false"' \
            --aptopt='APT::Authentication "false"' \
            --aptopt='APT::Get::AllowUnauthenticated "true"' \
            --aptopt='Acquire::AllowInsecureRepositories "true"' \
