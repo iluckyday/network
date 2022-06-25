@@ -36,7 +36,7 @@ mmdebstrap --debug \
 
 curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
 #curl -skL https://github.com/free5gc/free5gc/archive/refs/heads/main.tar.gz | tar -xz -C ${TARGET_DIR}/root
-git clone --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root
+git clone --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
 
 # make -j
 chroot ${TARGET_DIR} /bin/bash -c "
