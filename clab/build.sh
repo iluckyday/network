@@ -47,8 +47,8 @@ make
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
 
-ls -lh ${TARGET_DIR}/root/free5gc-*/config
-ls -lh ${TARGET_DIR}/root/free5gc-*/bin
-ls -lh ${TARGET_DIR}/root/free5gc-*/NFs/upf/build/bin
-ls -lh ${TARGET_DIR}/root/free5gc-*/NFs/upf/build/config
-find ${TARGET_DIR}/root/free5gc-*/NFs/upf/build -name *.so*
+ls -lh ${TARGET_DIR}/root/free5gc/config
+ls -lh ${TARGET_DIR}/root/free5gc/bin
+ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/bin
+ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/config
+find ${TARGET_DIR}/root/free5gc/NFs/upf/build -name *.so*
