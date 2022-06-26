@@ -16,7 +16,7 @@ disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils extlinux
+apt install -y --no-install-recommends mmdebstrap qemu-utils
 
 IMAGE_DIR=/tmp/clab
 TARGET_DIR=/tmp/clab.tmp
@@ -72,10 +72,6 @@ mmdebstrap --debug \
            "deb [trusted=yes] http://download.opensuse.org/repositories/network:/osmocom:/nightly/Debian_Testing/ ./" \
            "deb [trusted=yes] http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main"
 
-# mount -t proc none ${TARGET_DIR}/proc
-# mount -o bind /sys ${TARGET_DIR}/sys
-# mount -o bind /dev ${TARGET_DIR}/dev
-
 cat << EOF > ${TARGET_DIR}/etc/fstab
 LABEL=debian-root /        ext4  defaults,noatime                0 0
 tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
@@ -105,7 +101,6 @@ export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null
 EOF
 
 mkdir -p ${TARGET_DIR}/boot/syslinux
-extlinux -i ${TARGET_DIR}/boot/syslinux
 cat << EOF > ${TARGET_DIR}/boot/syslinux/syslinux.cfg
 PROMPT 0
 TIMEOUT 0
@@ -122,14 +117,14 @@ cp ${BUILD_DIR}/root/UERANSIM-*/config/* ${TARGET_DIR}/etc/ueransim
 cp ${BUILD_DIR}/root/UERANSIM-*/build/* ${TARGET_DIR}/usr/bin
 
 mkdir -p ${TARGET_DIR}/etc/free5gc
-cp -r ${BUILD_DIR}/root/free5gc/config/* ${TARGET_DIR}/etc/free5gc
+cp -a ${BUILD_DIR}/root/free5gc/config/* ${TARGET_DIR}/etc/free5gc
 for i in $(cd ${BUILD_DIR}/root/free5gc/bin;ls);do
 	cp -a ${BUILD_DIR}/root/free5gc/bin/$i ${TARGET_DIR}/usr/bin/free5gc-${i}d
 done
 cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/bin/free5gc-upfd ${TARGET_DIR}/usr/bin
-cp -r ${BUILD_DIR}/root/free5gc/NFs/upf/build/config/* ${TARGET_DIR}/etc/free5gc
-cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/updk/src/third_party/libgtp5gnl/lib/libgtp5gnl.so* ${TARGET_DIR}/usr/local/lib
-cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET_DIR}/usr/local/lib
+cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/config/* ${TARGET_DIR}/etc/free5gc
+cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/updk/src/third_party/libgtp5gnl/lib/libgtp5gnl.so* ${TARGET_DIR}/usr/local/lib
+cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET_DIR}/usr/local/lib
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
@@ -144,15 +139,24 @@ qemu-img create -f raw /tmp/clab.raw ${IMAGE_SIZE}G
 loopx=$(losetup --show -f -P /tmp/clab.raw)
 mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
 mount $loopx ${IMAGE_DIR}
-dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 
 sleep 1
 sync ${TARGET_DIR}
 cp -a ${TARGET_DIR}/* ${IMAGE_DIR}
-sleep 1
+
+mount -t proc none ${IMAGE_DIR}/proc
+mount -o bind /sys ${IMAGE_DIR}/sys
+mount -o bind /dev ${IMAGE_DIR}/dev
+
+chroot ${IMAGE_DIR} /bin/bash -c "
+dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
+extlinux -i /boot/syslinux
+"
 
 sleep 1
-# umount ${TARGET_DIR}/dev ${TARGET_DIR}/proc ${TARGET_DIR}/sys
+sync ${IMAGE_DIR}
+sleep 1
+umount ${IMAGE_DIR}/dev ${IMAGE_DIR}/proc ${IMAGE_DIR}/sys
 sleep 1
 killall provjobd || true
 sleep 1
