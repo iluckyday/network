@@ -10,6 +10,8 @@ include_apps="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
 include_apps+=",golang"
 # free5GC User-Plane
 include_apps+=",automake,autoconf,libtool,pkg-config,libmnl-dev,libyaml-dev"
+# free5GC WebUI
+include_apps+=",nodejs,yarn"
 
 export DEBIAN_FRONTEND=noninteractiv
 apt update
@@ -32,7 +34,8 @@ mmdebstrap --debug \
            --include=${include_apps} \
            ${DVERSION} \
            ${TARGET_DIR} \
-           "deb ${MIRROR} ${DVERSION} main contrib non-free"
+           "deb ${MIRROR} ${DVERSION} main contrib non-free" \
+           "deb [trusted=yes] https://dl.yarnpkg.com/debian/ stable main"
 
 curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
 git clone --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
@@ -41,7 +44,7 @@ chroot ${TARGET_DIR} /bin/bash -c "
 cd /root/UERANSIM-*
 make
 cd /root/free5gc
-make
+make all
 "
 
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
@@ -52,3 +55,5 @@ ls -lh ${TARGET_DIR}/root/free5gc/bin
 ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/bin
 ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/config
 find ${TARGET_DIR}/root/free5gc/NFs/upf/build -name *.so*
+ls -lh ${TARGET_DIR}/root/free5gc/webconsole/bin
+ls -lh ${TARGET_DIR}/root/free5gc/webconsole/public

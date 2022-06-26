@@ -11,7 +11,7 @@ include_apps+=",procps,locales"
 include_apps+=",libsctp1,tcpdump,iproute2,iptables"
 include_apps+=",open5gs"
 include_apps+=",libmnl0,libyaml-0-2"
-enable_services="systemd-networkd.service ssh.service"
+enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -62,7 +62,7 @@ mmdebstrap --debug \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
            --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
-           --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
+           --customize-hook='rm -rf $1/etc/resolv.conf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
            --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
@@ -116,7 +116,7 @@ mkdir -p ${TARGET_DIR}/etc/ueransim
 cp ${BUILD_DIR}/root/UERANSIM-*/config/* ${TARGET_DIR}/etc/ueransim
 cp ${BUILD_DIR}/root/UERANSIM-*/build/* ${TARGET_DIR}/usr/bin
 
-mkdir -p ${TARGET_DIR}/etc/free5gc
+mkdir -p ${TARGET_DIR}/etc/free5gc ${TARGET_DIR}/var/lib/free5gc/webconsole
 cp -a ${BUILD_DIR}/root/free5gc/config/* ${TARGET_DIR}/etc/free5gc
 for i in $(cd ${BUILD_DIR}/root/free5gc/bin;ls);do
 	cp -a ${BUILD_DIR}/root/free5gc/bin/$i ${TARGET_DIR}/usr/bin/free5gc-${i}d
@@ -125,16 +125,20 @@ cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/bin/free5gc-upfd ${TARGET_DIR}/usr/bi
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/config/* ${TARGET_DIR}/etc/free5gc
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/updk/src/third_party/libgtp5gnl/lib/libgtp5gnl.so* ${TARGET_DIR}/usr/local/lib
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET_DIR}/usr/local/lib
+cp -a ${BUILD_DIR}/root/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
+cp -a ${BUILD_DIR}/root/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
 systemctl disable $disable_services
+ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 ldconfig
 
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
 "
 
 IMAGE_SIZE=$(du -s --block-size=1G ${TARGET_DIR} | awk '{print $1}')
+IMAGE_SIZE=$((IMAGE_SIZE+1))
 qemu-img create -f raw /tmp/clab.raw ${IMAGE_SIZE}G
 loopx=$(losetup --show -f -P /tmp/clab.raw)
 mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
