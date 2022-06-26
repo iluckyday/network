@@ -20,7 +20,7 @@ mkdir -p ${TARGET_DIR}
 
 mmdebstrap --debug \
            --aptopt='Apt::Install-Recommends "true"' \
-           --aptopt='Apt::Install-Suggests "true"' \
+           --aptopt='Apt::Install-Suggests "false"' \
            --aptopt='APT::Authentication "false"' \
            --aptopt='APT::Get::AllowUnauthenticated "true"' \
            --aptopt='Acquire::AllowInsecureRepositories "true"' \
@@ -35,10 +35,8 @@ mmdebstrap --debug \
            "deb ${MIRROR} ${DVERSION} main contrib non-free"
 
 curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
-#curl -skL https://github.com/free5gc/free5gc/archive/refs/heads/main.tar.gz | tar -xz -C ${TARGET_DIR}/root
 git clone --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
 
-# make -j
 chroot ${TARGET_DIR} /bin/bash -c "
 cd /root/UERANSIM-*
 make
