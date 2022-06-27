@@ -53,13 +53,9 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
-mkdir -p ${TARGET_DIR}/root/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
-chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
-
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
 [Match]
-Name=en*10
+Name=en*
 
 [Network]
 DHCP=yes
@@ -85,9 +81,9 @@ extlinux -i /boot/syslinux
 "
 
 ssh-keygen -q -P '' -f /root/.ssh/id_ed25519 -C '' -t ed25519
+mkdir -p ${TARGET_DIR}/root/.ssh
 ssh-keygen -y -f /root/.ssh/id_ed25519 >> ${TARGET_DIR}/root/.ssh/authorized_keys
-cp /root/.ssh/id_ed25519 ${TARGET_DIR}/root/.ssh/
-chmod 600 ${TARGET_DIR}/root/.ssh/id_ed25519
+chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
 
 git clone --depth=1 https://github.com/free5gc/gtp5g ${TARGET_DIR}/root/gtp5g
 
