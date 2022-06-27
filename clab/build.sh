@@ -16,7 +16,7 @@ include_apps+=",nodejs,yarnpkg"
 export DEBIAN_FRONTEND=noninteractiv
 apt update
 apt install -y --no-install-recommends mmdebstrap
-apt install -y --no-install-recommends nodjs yarnpkg
+apt install -y --no-install-recommends nodejs yarnpkg
 ln -sf /usr/share/nodejs/yarn/bin/yarn /usr/bin/yarn
 git clone --depth=1 --recursive https://github.com/free5gc/free5gc /tmp/free5gc
 cd /tmp/free5gc
