@@ -16,6 +16,7 @@ include_apps+=",nodejs,yarnpkg"
 export DEBIAN_FRONTEND=noninteractiv
 apt update
 apt install -y --no-install-recommends mmdebstrap
+
 apt install -y --no-install-recommends nodejs yarnpkg
 ln -sf /usr/share/nodejs/yarn/bin/yarn /usr/bin/yarn
 git clone --depth=1 --recursive https://github.com/free5gc/free5gc /tmp/free5gc
@@ -48,10 +49,8 @@ chroot ${TARGET_DIR} /bin/bash -c "
 cd /root/UERANSIM-*
 make
 
-ln -sf /usr/share/nodejs/yarn/bin/yarn /usr/bin/yarn
 cd /root/free5gc
-sed -i 's/yarn/yarn --verbose/g' Makefile
-make all
+make
 "
 
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
@@ -62,5 +61,5 @@ ls -lh ${TARGET_DIR}/root/free5gc/bin
 ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/bin
 ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/config
 find ${TARGET_DIR}/root/free5gc/NFs/upf/build -name *.so*
-ls -lh ${TARGET_DIR}/root/free5gc/webconsole/bin
-ls -lh ${TARGET_DIR}/root/free5gc/webconsole/public
+ls -lh /tmp/free5gc/webconsole/bin
+ls -lh /tmp/free5gc/webconsole/public

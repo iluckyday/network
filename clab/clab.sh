@@ -125,8 +125,8 @@ cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/bin/free5gc-upfd ${TARGET_DIR}/usr/bi
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/config/* ${TARGET_DIR}/etc/free5gc
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/updk/src/third_party/libgtp5gnl/lib/libgtp5gnl.so* ${TARGET_DIR}/usr/local/lib
 cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET_DIR}/usr/local/lib
-cp -a ${BUILD_DIR}/root/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
-cp -a ${BUILD_DIR}/root/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
+cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
+cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
