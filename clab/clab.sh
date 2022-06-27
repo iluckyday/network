@@ -129,6 +129,7 @@ cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webco
 cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
 cp -a /tmp/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
+KVERSION=$(ls -d ${TARGET_DIR}/lib/modules/* | sed "s|${TARGET_DIR}/lib/modules/||")
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
@@ -136,7 +137,7 @@ systemctl disable $disable_services
 ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 ldconfig
 
-depmod -a
+depmod -a $KVERSION
 
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
 "
