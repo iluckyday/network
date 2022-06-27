@@ -5,7 +5,7 @@ DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
-include_apps="systemd,systemd-sysv,ca-certificates,openssh-server"
+include_apps="systemd,systemd-sysv,dbus,ca-certificates,openssh-server"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",procps,locales"
 include_apps+=",libsctp1,tcpdump,iproute2,iptables"
@@ -128,11 +128,15 @@ cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET
 cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
 cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
+cp -a ${BUILD_DIR}/root/gtp5g/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
+
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
 systemctl disable $disable_services
 ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 ldconfig
+
+depmod -a
 
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
 "
