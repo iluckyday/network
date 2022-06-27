@@ -12,7 +12,7 @@ enable_services="systemd-networkd systemd-resolved ssh"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils
+apt install -y --no-install-recommends mmdebstrap qemu-utils qemu-system-x86
 
 TARGET_DIR=/tmp/gtp5g
 mkdir -p ${TARGET_DIR}
