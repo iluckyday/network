@@ -128,7 +128,7 @@ cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET
 cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
 cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
-cp -a ${BUILD_DIR}/root/gtp5g/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
+cp -a /tmp/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
