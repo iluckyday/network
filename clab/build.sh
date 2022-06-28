@@ -23,7 +23,7 @@ git clone --depth=1 --recursive https://github.com/free5gc/free5gc /tmp/free5gc
 cd /tmp/free5gc
 make webconsole
 
-UIDIR=/tmp/free5gc/webconsole/public"
+UIDIR="/tmp/free5gc/webconsole/public"
 HTMLFILE=$UIDIR"/index.html"
 
 BOOTSTRAPCDN_TAIL=$(grep -oP 'href="https://maxcdn.bootstrapcdn.com\K(.*?)(?=")' $HTMLFILE)
@@ -60,9 +60,6 @@ for url in $FONTS_URLS; do
 	sed -i 's|'$PREFIX'|/fonts|' $UIDIR/$GOOGLEAPIS_FILE
 done
 
-ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
-ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
-
 TARGET_DIR=/tmp/build
 mkdir -p ${TARGET_DIR}
 
@@ -92,6 +89,9 @@ make
 cd /root/free5gc
 make
 "
+
+ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
+ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
 
 ls -lh ${TARGET_DIR}/root/free5gc/config
 ls -lh ${TARGET_DIR}/root/free5gc/bin
