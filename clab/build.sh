@@ -23,39 +23,8 @@ git clone --depth=1 --recursive https://github.com/free5gc/free5gc /tmp/free5gc
 cd /tmp/free5gc
 make webconsole
 
-TARGET_DIR=/tmp/build
-mkdir -p ${TARGET_DIR}
-
-mmdebstrap --debug \
-           --aptopt='Apt::Install-Recommends "true"' \
-           --aptopt='Apt::Install-Suggests "false"' \
-           --aptopt='APT::Authentication "false"' \
-           --aptopt='APT::Get::AllowUnauthenticated "true"' \
-           --aptopt='Acquire::AllowInsecureRepositories "true"' \
-           --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
-           --aptopt='DPkg::Options::=--force-depends' \
-           --dpkgopt='force-depends' \
-           --components="main contrib non-free" \
-           --variant=apt \
-           --include=${include_apps} \
-           ${DVERSION} \
-           ${TARGET_DIR} \
-           "deb ${MIRROR} ${DVERSION} main contrib non-free"
-
-curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
-git clone --depth=1 --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
-
-chroot ${TARGET_DIR} /bin/bash -c "
-cd /root/UERANSIM-*
-make
-
-cd /root/free5gc
-make
-"
-
-UIDIR=${TARGET_DIR}"/var/lib/free5gc/webconsole/public"
+UIDIR=/tmp/free5gc/webconsole/public"
 HTMLFILE=$UIDIR"/index.html"
-
 
 BOOTSTRAPCDN_TAIL=$(grep -oP 'href="https://maxcdn.bootstrapcdn.com\K(.*?)(?=")' $HTMLFILE)
 FONTAWESOME_TAIL=$(grep -oP 'href="https://use.fontawesome.com\K(.*?)(?=")' $HTMLFILE)
@@ -93,6 +62,36 @@ done
 
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
+
+TARGET_DIR=/tmp/build
+mkdir -p ${TARGET_DIR}
+
+mmdebstrap --debug \
+           --aptopt='Apt::Install-Recommends "true"' \
+           --aptopt='Apt::Install-Suggests "false"' \
+           --aptopt='APT::Authentication "false"' \
+           --aptopt='APT::Get::AllowUnauthenticated "true"' \
+           --aptopt='Acquire::AllowInsecureRepositories "true"' \
+           --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
+           --aptopt='DPkg::Options::=--force-depends' \
+           --dpkgopt='force-depends' \
+           --components="main contrib non-free" \
+           --variant=apt \
+           --include=${include_apps} \
+           ${DVERSION} \
+           ${TARGET_DIR} \
+           "deb ${MIRROR} ${DVERSION} main contrib non-free"
+
+curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
+git clone --depth=1 --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
+
+chroot ${TARGET_DIR} /bin/bash -c "
+cd /root/UERANSIM-*
+make
+
+cd /root/free5gc
+make
+"
 
 ls -lh ${TARGET_DIR}/root/free5gc/config
 ls -lh ${TARGET_DIR}/root/free5gc/bin
