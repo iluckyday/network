@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -x
 
 DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
@@ -52,6 +52,44 @@ make
 cd /root/free5gc
 make
 "
+
+UIDIR=${TARGET_DIR}"/var/lib/free5gc/webconsole/public"
+HTMLFILE=$UIDIR"/index.html"
+
+
+BOOTSTRAPCDN_TAIL=$(grep -oP 'href="https://maxcdn.bootstrapcdn.com\K(.*?)(?=")' $HTMLFILE)
+FONTAWESOME_TAIL=$(grep -oP 'href="https://use.fontawesome.com\K(.*?)(?=")' $HTMLFILE)
+GOOGLEAPIS_TAIL=$(grep -oP 'href="https://fonts.googleapis.com\K(.*?)(?=")' $HTMLFILE)
+CLOUDFLARE_TAIL=$(grep -oP 'href="https://cdnjs.cloudflare.com\K(.*?)(?=")' $HTMLFILE)
+
+UNPKG_URL=https://unpkg.com/react-jsonschema-form/dist/react-jsonschema-form.js
+UNPKG_FILE=${UNPKG_URL##*/}
+
+BOOTSTRAPCDN_URL="https://maxcdn.bootstrapcdn.com"$BOOTSTRAPCDN_TAIL
+BOOTSTRAPCDN_FILE=${BOOTSTRAPCDN_TAIL##*/}
+FONTAWESOME_URL="https://use.fontawesome.com"$FONTAWESOME_TAIL
+FONTAWESOME_FILE=${FONTAWESOME_TAIL##*/}
+GOOGLEAPIS_URL="https://fonts.googleapis.com"$GOOGLEAPIS_TAIL
+GOOGLEAPIS_FILE="local.google.fonts.css"
+CLOUDFLARE_URL="https://cdnjs.cloudflare.com"$CLOUDFLARE_TAIL
+CLOUDFLARE_FILE=${CLOUDFLARE_URL##*/}
+
+curl -skL --connect-timeout 2 -o $UIDIR/$BOOTSTRAPCDN_FILE "$BOOTSTRAPCDN_URL"
+curl -skL --connect-timeout 2 -o $UIDIR/$FONTAWESOME_FILE "$FONTAWESOME_URL"
+curl -skL --connect-timeout 2 -o $UIDIR/$GOOGLEAPIS_FILE "$GOOGLEAPIS_URL"
+curl -skL --connect-timeout 2 -o $UIDIR/$CLOUDFLARE_FILE "$CLOUDFLARE_URL"
+curl -skL --connect-timeout 2 -o $UIDIR/$UNPKG_FILE "$UNPKG_URL"
+
+sed -i -e 's|'$BOOTSTRAPCDN_URL'|'/$BOOTSTRAPCDN_FILE'|' -e 's|'$FONTAWESOME_URL'|'/$FONTAWESOME_FILE'|' -e 's|'$CLOUDFLARE_URL'|'/$CLOUDFLARE_FILE'|' -e 's|'$UNPKG_URL'|'/$UNPKG_FILE'|' -e 's|'$GOOGLEAPIS_URL'|'/$GOOGLEAPIS_FILE'|' $HTMLFILE
+
+mkdir $UIDIR/fonts
+cd $UIDIR/fonts
+FONTS_URLS=$(grep -oP 'url\(\K(.*?)(?=\))' $UIDIR/$GOOGLEAPIS_FILE | awk '!a[$0]++')
+for url in $FONTS_URLS; do
+	curl -skLO --connect-timeout 2 $url
+	PREFIX=${url%/*}
+	sed -i 's|'$PREFIX'|/fonts|' $UIDIR/$GOOGLEAPIS_FILE
+done
 
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/config
 ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
