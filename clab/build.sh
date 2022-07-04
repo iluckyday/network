@@ -87,7 +87,7 @@ cd /root/UERANSIM-*
 make
 
 cd /root/free5gc
-sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 $(ROOT_PATH)/$@|' Makefile
+sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
 make
 "
 
