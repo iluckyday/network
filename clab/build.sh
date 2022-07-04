@@ -5,13 +5,13 @@ DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 
 # UERANSIM
-include_apps="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
-# free5GC Control-Plane
+include_apps="ca-certificates,git,make"
+# free5GC Control-Plane and User-Plane
 include_apps+=",golang"
-# free5GC User-Plane
-include_apps+=",automake,autoconf,libtool,pkg-config,libmnl-dev,libyaml-dev"
 # free5GC WebUI
-include_apps+=",nodejs,yarnpkg"
+# include_apps+=",nodejs,yarnpkg"
+# UPX
+include_apps+=",upx"
 
 export DEBIAN_FRONTEND=noninteractiv
 apt update
@@ -87,6 +87,7 @@ cd /root/UERANSIM-*
 make
 
 cd /root/free5gc
+sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 $(ROOT_PATH)/$@|' Makefile
 make
 "
 
@@ -95,8 +96,5 @@ ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
 
 ls -lh ${TARGET_DIR}/root/free5gc/config
 ls -lh ${TARGET_DIR}/root/free5gc/bin
-ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/bin
-ls -lh ${TARGET_DIR}/root/free5gc/NFs/upf/build/config
-find ${TARGET_DIR}/root/free5gc/NFs/upf/build -name *.so*
 ls -lh /tmp/free5gc/webconsole/bin
 ls -lh /tmp/free5gc/webconsole/public

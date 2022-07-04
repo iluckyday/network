@@ -16,7 +16,7 @@ disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils
+apt install -y --no-install-recommends mmdebstrap qemu-utils upx
 
 IMAGE_DIR=/tmp/clab
 TARGET_DIR=/tmp/clab.tmp
@@ -121,15 +121,14 @@ cp -a ${BUILD_DIR}/root/free5gc/config/* ${TARGET_DIR}/etc/free5gc
 for i in $(cd ${BUILD_DIR}/root/free5gc/bin;ls);do
 	cp -a ${BUILD_DIR}/root/free5gc/bin/$i ${TARGET_DIR}/usr/bin/free5gc-${i}d
 done
-cp ${BUILD_DIR}/root/free5gc/NFs/upf/build/bin/free5gc-upfd ${TARGET_DIR}/usr/bin
-cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/config/* ${TARGET_DIR}/etc/free5gc
-cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/updk/src/third_party/libgtp5gnl/lib/libgtp5gnl.so* ${TARGET_DIR}/usr/local/lib
-cp -a ${BUILD_DIR}/root/free5gc/NFs/upf/build/utlt_logger/liblogger.so* ${TARGET_DIR}/usr/local/lib
 cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
 cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
 
 cp -a /tmp/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
 KVERSION=$(ls -d ${TARGET_DIR}/lib/modules/* | sed "s|${TARGET_DIR}/lib/modules/||")
+
+echo UPX mongo
+upx -9 ${TARGET_DIR}/usr/bin/mongo ${TARGET_DIR}/usr/bin/mongod
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
