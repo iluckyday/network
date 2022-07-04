@@ -5,7 +5,7 @@ DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 
 # UERANSIM
-include_apps="ca-certificates,git,make"
+include_apps="ca-certificates,git,make,cmake,gcc,g++,libsctp-dev,lksctp-tools"
 # free5GC Control-Plane and User-Plane
 include_apps+=",golang"
 # free5GC WebUI
