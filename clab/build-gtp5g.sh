@@ -69,7 +69,7 @@ DEFAULT gtp5g
 LABEL gtp5g
         LINUX /vmlinuz
         INITRD /initrd.img
-        APPEND root=LABEL=debian-root quiet
+        APPEND root=LABEL=debian-root console=ttyS0
 EOF
 
 chroot ${TARGET_DIR} /bin/bash -c "
@@ -98,9 +98,15 @@ sleep 1
 losetup -d $loopx
 
 sleep 1
-systemd-run -G -q qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
+qemu-img convert -c -f raw -O qcow2 /tmp/gtp5g.raw /tmp/gtp5g.img
+ls -lh /tmp/gtp5g.img
 
-sleep 30
+sleep 1
+systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
+
+sleep 60
+journalctl -u qemu-gtp5g.service
+
 ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
 cd /root/gtp5g
 sed -i 's|stdbool.h|linux/types.h|' api_version.c
