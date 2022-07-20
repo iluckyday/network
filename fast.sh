@@ -9,7 +9,7 @@ include_apps="systemd,systemd-sysv,ca-certificates,openssh-server,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",openvswitch-switch-dpdk,libdpdk-dev,dpdk-dev"
 vpp_apps="vpp vpp-plugin-core vpp-plugin-dpdk vpp-plugin-devtools python3-vpp-api vpp-dbg vpp-dev"
-enable_services="systemd-networkd.service ssh.service"
+enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
