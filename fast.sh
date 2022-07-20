@@ -5,7 +5,7 @@ DVERSION=$(curl https://www.debian.org/releases/ | grep -oP 'codenamed <em>\K(.*
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
-include_apps="systemd,systemd-sysv,ca-certificates,openssh-server"
+include_apps="systemd,systemd-sysv,ca-certificates,openssh-server,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",openvswitch-switch-dpdk,libdpdk-dev,dpdk-dev"
 vpp_apps="vpp vpp-plugin-core vpp-plugin-dpdk vpp-plugin-devtools python3-vpp-api vpp-dbg vpp-dev"
