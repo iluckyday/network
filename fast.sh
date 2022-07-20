@@ -110,7 +110,7 @@ LABEL fast
         APPEND root=LABEL=debian-root quiet intel_iommu=on iommu=pt
 EOF
 
-chroot ${TARGET_DIR} /bin/bash -c "
+chroot ${TARGET_DIR} /bin/bash -cx "
 systemctl enable $enable_services
 systemctl disable $disable_services
 
@@ -145,10 +145,6 @@ apt update
 DEBIAN_FRONTEND=noninteractive apt install -y ${vpp_apps}
 apt clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/*
-dd if=/dev/zero of=/tmp/bigfile || true
-sync
-rm /tmp/bigfile
-sync
 poweroff
 SSHCMD
 
@@ -161,6 +157,26 @@ while [ true ]; do
   fi
 done
 
+sleep 1
+sync
+sleep 1
+
+loopx=$(losetup --show -f -P /tmp/fast.raw)
+mount $loopx ${TARGET_DIR}
+sleep 1
+chroot ${TARGET_DIR} /bin/bash -cx "
+dd if=/dev/zero of=/tmp/bigfile || true
+sync
+rm /tmp/bigfile
+sync
+"
+
+sleep 1
+killall provjobd || true
+sleep 1
+umount ${TARGET_DIR}
+sleep 1
+losetup -d $loopx
 sleep 1
 sync
 sleep 1
