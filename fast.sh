@@ -8,7 +8,7 @@ LINUX_KERNEL=linux-image-cloud-amd64
 include_apps="systemd,systemd-sysv,ca-certificates,openssh-server"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",openvswitch-switch-dpdk,libdpdk-dev,dpdk-dev"
-include_apps+=",vpp,vpp-plugin-core,vpp-plugin-dpdk,vpp-plugin-devtools,python3-vpp-api,vpp-dbg,vpp-dev"
+vpp_apps="vpp vpp-plugin-core vpp-plugin-dpdk vpp-plugin-devtools python3-vpp-api vpp-dbg vpp-dev"
 enable_services="systemd-networkd.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
@@ -66,10 +66,6 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
-mkdir -p ${TARGET_DIR}/root/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
-chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
-
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
 [Match]
 Name=en*
@@ -120,11 +116,14 @@ systemctl disable $disable_services
 
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
-dd if=/dev/zero of=/tmp/bigfile
-sync
-rm /tmp/bigfile
-sync
+ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 "
+
+ssh-keygen -q -P '' -f /root/.ssh/id_ed25519 -C 'building' -t ed25519
+mkdir -p ${TARGET_DIR}/root/.ssh
+ssh-keygen -y -f /root/.ssh/id_ed25519 >> ${TARGET_DIR}/root/.ssh/authorized_keys
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
+chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
 
 sleep 1
 sync ${TARGET_DIR}
@@ -135,5 +134,35 @@ sleep 1
 umount ${TARGET_DIR}
 sleep 1
 losetup -d $loopx
+
+sleep 2
+systemd-run -G -q --unit qemu-fast-building.service qemu-system-x86_64 -name fast-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 2G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/fast.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
+
+sleep 180
+ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << SSHCMD
+sed -i '/building/d' /root/.ssh/authorized_keys
+apt update
+DEBIAN_FRONTEND=noninteractive apt install -y ${vpp_apps}
+apt clean
+rm -rf /var/cache/apt/* /var/lib/apt/lists/*
+dd if=/dev/zero of=/tmp/bigfile || true
+sync
+rm /tmp/bigfile
+sync
+poweroff
+SSHCMD
+
+while [ true ]; do
+  pid=`pgrep fast-building || true`
+  if [ -z $pid ]; then
+    break
+  else
+    sleep 1
+  fi
+done
+
+sleep 1
+sync
+sleep 1
 
 qemu-img convert -c -f raw -O qcow2 /tmp/fast.raw /tmp/fast-${DVERSION}-$(date +"%Y%m%d").img
