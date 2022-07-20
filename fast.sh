@@ -14,7 +14,7 @@ disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils
+apt install -y --no-install-recommends mmdebstrap qemu-system-x86 qemu-utils
 
 TARGET_DIR=/tmp/fast
 
