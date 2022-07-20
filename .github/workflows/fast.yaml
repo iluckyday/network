@@ -1,0 +1,24 @@
+name: fast.img
+
+on:
+  schedule:
+    - cron:  "0 0 * * 0"
+  push:
+    branches:
+    - main
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@main
+
+      - name: Build fast.img
+        run: sudo /bin/bash fast.sh
+
+      - name: Push to transfer
+        env:
+          WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
+          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
+        run: |
+          bash transfer.sh wet /tmp/fast-*.img
