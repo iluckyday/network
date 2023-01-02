@@ -5,7 +5,7 @@ DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
-include_apps="systemd,systemd-sysv,dbus,ca-certificates,openssh-server"
+include_apps="systemd,systemd-resolved,systemd-sysv,dbus,ca-certificates,openssh-server"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
 include_apps+=",make,gcc,g++,linux-headers-cloud-amd64"
 enable_services="systemd-networkd systemd-resolved ssh"
