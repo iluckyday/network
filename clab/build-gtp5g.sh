@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -x
 
 DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
