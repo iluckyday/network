@@ -69,7 +69,7 @@ DEFAULT gtp5g
 LABEL gtp5g
         LINUX /vmlinuz
         INITRD /initrd.img
-        APPEND root=LABEL=debian-root console=ttyS0
+        APPEND root=LABEL=debian-root
 EOF
 
 chroot ${TARGET_DIR} /bin/bash -c "
@@ -107,7 +107,7 @@ systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=k
 sleep 300
 journalctl -u qemu-gtp5g.service
 
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
 cd /root/gtp5g
 sed -i 's|stdbool.h|linux/types.h|' api_version.c
 sed -i '1i\#include <linux/etherdevice.h>' genl_far.c
@@ -115,7 +115,7 @@ make
 CMD
 
 sleep 1
-scp -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:/root/gtp5g/gtp5g.ko /tmp/gtp5g.ko
+scp -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:/root/gtp5g/gtp5g.ko /tmp/gtp5g.ko
 
 sleep 1
-ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 poweroff
+ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 poweroff
