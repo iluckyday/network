@@ -104,9 +104,21 @@ ls -lh /tmp/gtp5g.img
 sleep 1
 systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
 
-sleep 300
-journalctl -u qemu-gtp5g.service
+sleep 10
+while true
+do
+	ssh -q -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 'exit 0'
+	RCODE=$?
+	if [ $RCODE -ne 0 ]; then
+		echo "[!] SSH is not available."
+		sleep 2
+	else
+		sleep 2
+		break
+	fi
+done
 
+sleep 1
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
 cd /root/gtp5g
 sed -i 's|stdbool.h|linux/types.h|' api_version.c
