@@ -7,7 +7,7 @@ LINUX_KERNEL=linux-image-cloud-amd64
 
 include_apps="systemd,systemd-resolved,systemd-sysv,dbus,ca-certificates,openssh-server,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
-include_apps+=",make,gcc,g++,linux-headers-cloud-amd64"
+include_apps+=",make,gcc,g++,linux-headers-cloud-amd64,dwarves"
 enable_services="systemd-networkd systemd-resolved ssh"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -29,10 +29,7 @@ mmdebstrap --debug \
            --aptopt='APT::Get::AllowUnauthenticated "true"' \
            --aptopt='Acquire::AllowInsecureRepositories "true"' \
            --aptopt='Acquire::AllowDowngradeToInsecureRepositories "true"' \
-           --aptopt='DPkg::Options::=--force-depends' \
-           --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
-           --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
            --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
@@ -119,9 +116,8 @@ done
 
 sleep 1
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
+# ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
 cd /root/gtp5g
-#sed -i 's|stdbool.h|linux/types.h|' api_version.c
-#sed -i '1i\#include <linux/etherdevice.h>' genl_far.c
 make
 CMD
 
