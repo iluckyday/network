@@ -87,6 +87,7 @@ cd /root/UERANSIM-*
 make
 
 cd /root/free5gc
+export HOME=/root
 go env -w GOMODCACHE=/tmp
 sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
 make
