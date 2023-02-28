@@ -7,7 +7,7 @@ IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
-include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
+include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",openssh-server"
 eve_apps="eve-ng"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
@@ -43,7 +43,7 @@ mmdebstrap --debug \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
            --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
-           --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
+           --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/*' \
            --components="main restricted universe multiverse" \
            --variant=apt \
            --include=${include_apps} \
@@ -117,6 +117,7 @@ extlinux -i /boot/syslinux
 ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 "
 
+rm -f /root/.ssh/id_ed25519
 ssh-keygen -q -P '' -f /root/.ssh/id_ed25519 -C 'building' -t ed25519
 mkdir -p ${TARGET_DIR}/root/.ssh
 ssh-keygen -y -f /root/.ssh/id_ed25519 >> ${TARGET_DIR}/root/.ssh/authorized_keys
@@ -138,6 +139,7 @@ systemd-run -G -q --unit qemu-eve-building.service qemu-system-x86_64 -name eve-
 sleep 180
 ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << SSHCMD
 sed -i '/building/d' /root/.ssh/authorized_keys
+busybox wget -qO- https://www.eve-ng.net/focal/eczema@ecze.com.gpg.key | apt-key add -
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y ${eve_apps}
 apt clean

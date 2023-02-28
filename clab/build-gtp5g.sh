@@ -73,12 +73,14 @@ LABEL gtp5g
 EOF
 
 chroot ${TARGET_DIR} /bin/bash -c "
+rm -f /root/.ssh/id_ed25519
 systemctl enable $enable_services
 ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 "
 
+rm -f /root/.ssh/id_ed25519
 ssh-keygen -q -P '' -f /root/.ssh/id_ed25519 -C '' -t ed25519
 mkdir -p ${TARGET_DIR}/root/.ssh
 ssh-keygen -y -f /root/.ssh/id_ed25519 >> ${TARGET_DIR}/root/.ssh/authorized_keys
