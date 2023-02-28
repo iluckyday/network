@@ -1,5 +1,5 @@
 task:
-  name: gns3vm_eve-com
+  name: gns3vm_eve-com_clab
   compute_engine_instance:
     image_project: cirrus-images
     image: family/docker-kvm
@@ -15,3 +15,7 @@ task:
     - bash transfer.sh wet /tmp/gns3vm-*.img
     - bash eve-com/mmdebstrap.sh
     - bash transfer.sh wet /tmp/eve-com-*.img
+    - bash clab/build-gtp5g.sh
+    - bash sudo /bin/bash clab/build.sh
+    - bash sudo /bin/bash clab/clab.sh
+    - bash transfer.sh wet /tmp/clab-*.img
