@@ -116,7 +116,7 @@ done
 
 sleep 1
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
-# ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
+ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
 cd /root/gtp5g
 make
 CMD

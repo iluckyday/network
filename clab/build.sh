@@ -82,11 +82,12 @@ mmdebstrap --debug \
 curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C ${TARGET_DIR}/root
 git clone --depth=1 --recursive https://github.com/free5gc/free5gc ${TARGET_DIR}/root/free5gc
 
-chroot ${TARGET_DIR} /bin/bash -c "
+chroot ${TARGET_DIR} /bin/bash -cx "
 cd /root/UERANSIM-*
 make
 
 cd /root/free5gc
+go env -w GOMODCACHE=/tmp
 sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
 make
 "
