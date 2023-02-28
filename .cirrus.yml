@@ -1,5 +1,5 @@
 task:
-  name: gns3vm
+  name: gns3vm_eve-com
   compute_engine_instance:
     image_project: cirrus-images
     image: family/docker-kvm
