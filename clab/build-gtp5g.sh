@@ -70,7 +70,7 @@ LABEL gtp5g
 EOF
 
 chroot ${TARGET_DIR} /bin/bash -c "
-rm -f /root/.ssh/id_ed25519
+sed -i 's/root:\*:/root::/' etc/shadow
 systemctl enable $enable_services
 ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
@@ -101,7 +101,7 @@ qemu-img convert -c -f raw -O qcow2 /tmp/gtp5g.raw /tmp/gtp5g.img
 ls -lh /tmp/gtp5g.img
 
 sleep 1
-systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
+systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0 -serial telnet:127.0.0.1:22223,server,nowait
 
 sleep 10
 while true
