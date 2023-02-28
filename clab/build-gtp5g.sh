@@ -103,9 +103,6 @@ ls -lh /tmp/gtp5g.img
 sleep 1
 systemd-run -G --unit qemu-gtp5g.service qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/gtp5g.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
 
-sleep 300
-journalctl -u qemu-gtp5g.service
-
 sleep 10
 while true
 do

@@ -136,11 +136,26 @@ losetup -d $loopx
 sleep 2
 systemd-run -G -q --unit qemu-eve-building.service qemu-system-x86_64 -name eve-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 2G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/eve-com.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
 
-sleep 18000
+sleep 10
+while true
+do
+	ssh -q -o BatchMode=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 'exit 0'
+	RCODE=$?
+	if [ $RCODE -ne 0 ]; then
+		echo "[!] SSH is not available."
+		sleep 2
+	else
+		sleep 2
+		break
+	fi
+done
+
 ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << SSHCMD
 sed -i '/building/d' /root/.ssh/authorized_keys
 busybox wget -qO- https://www.eve-ng.net/focal/eczema@ecze.com.gpg.key | apt-key add -
 apt update
+cat /var/lib/apt/lists/*_Packages > /var/lib/dpkg/available
+dpkg --configure -a
 DEBIAN_FRONTEND=noninteractive apt install -y ${eve_apps}
 apt clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/*
