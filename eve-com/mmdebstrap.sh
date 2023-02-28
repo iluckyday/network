@@ -8,7 +8,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",openssh-server"
+include_apps+=",openssh-server,gnupg"
 eve_apps="eve-ng"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
@@ -136,7 +136,7 @@ losetup -d $loopx
 sleep 2
 systemd-run -G -q --unit qemu-eve-building.service qemu-system-x86_64 -name eve-building -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 2G -display none -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 -boot c -drive file=/tmp/eve-com.raw,if=virtio,format=raw,media=disk -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
 
-sleep 180
+sleep 18000
 ssh -q -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << SSHCMD
 sed -i '/building/d' /root/.ssh/authorized_keys
 busybox wget -qO- https://www.eve-ng.net/focal/eczema@ecze.com.gpg.key | apt-key add -

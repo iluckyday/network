@@ -5,7 +5,7 @@ DVERSION=sid
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
-include_apps="systemd,systemd-resolved,systemd-sysv,dbus,ca-certificates,openssh-server"
+include_apps="systemd,systemd-resolved,systemd-sysv,dbus,ca-certificates,openssh-server,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
 include_apps+=",make,gcc,g++,linux-headers-cloud-amd64"
 enable_services="systemd-networkd systemd-resolved ssh"
@@ -33,9 +33,6 @@ mmdebstrap --debug \
            --dpkgopt='force-depends' \
            --dpkgopt='no-debsig' \
            --dpkgopt='path-exclude=/usr/share/initramfs-tools/hooks/fixrtc' \
-           --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
-           --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
-           --customize-hook='rm -rf $1/etc/resolv.conf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/* $1/var/lib/apt/lists/* $1/usr/bin/perl*.* $1/usr/bin/systemd-analyze $1/boot/System.map-*' \
            --components="main contrib non-free" \
            --variant=apt \
            --include=${include_apps} \
@@ -126,8 +123,8 @@ done
 sleep 1
 ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
 cd /root/gtp5g
-sed -i 's|stdbool.h|linux/types.h|' api_version.c
-sed -i '1i\#include <linux/etherdevice.h>' genl_far.c
+#sed -i 's|stdbool.h|linux/types.h|' api_version.c
+#sed -i '1i\#include <linux/etherdevice.h>' genl_far.c
 make
 CMD
 
