@@ -1,5 +1,5 @@
 #!/bin/sh
-set -ex
+set -x
 
 EVE_UBUNTU_VERSION=$(curl -skL https://www.eve-ng.net/index.php/documentation/installation/system-requirement | awk -F' ' '/>Ubuntu/ {print tolower($4)}')
 EVE_COM_VERSION=$(curl -skL https://www.eve-ng.net/focal/dists/focal/main/binary-amd64/Packages | awk '/Package: eve-ng$/ {getline;print $2}')
