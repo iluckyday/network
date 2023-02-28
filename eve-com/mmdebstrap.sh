@@ -6,7 +6,7 @@ EVE_COM_VERSION=$(curl -skL https://www.eve-ng.net/focal/dists/focal/main/binary
 IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
-include_apps="systemd,systemd-sysv,ca-certificates"
+include_apps="systemd,systemd-sysv,ca-certificates,locales"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
 include_apps+=",openssh-server"
 eve_apps="eve-ng"
