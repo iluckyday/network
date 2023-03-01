@@ -98,5 +98,5 @@ ls -lh ${TARGET_DIR}/root/UERANSIM-*/build
 
 ls -lh ${TARGET_DIR}/root/free5gc/config
 ls -lh ${TARGET_DIR}/root/free5gc/bin
-ls -lh /tmp/free5gc/webconsole/bin
-ls -lh /tmp/free5gc/webconsole/public
+## ls -lh /tmp/free5gc/webconsole/bin
+## ls -lh /tmp/free5gc/webconsole/public
