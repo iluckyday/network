@@ -156,7 +156,8 @@ busybox wget -qO- https://www.eve-ng.net/focal/eczema@ecze.com.gpg.key | apt-key
 apt update
 cat /var/lib/apt/lists/*_Packages > /var/lib/dpkg/available
 dpkg --configure -a
-sed -i -e 's|build-essential, ||g' -e "s|linux-image-*-eve-ng-uksm-wg+, ||g" /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
+sed -i -e 's|build-essential,||g' -e 's|eve-ng-uksm-wg+,||g' /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
+sed -i -e 's|,build-essential||g' -e 's|,eve-ng-uksm-wg+||g' /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
 DEBIAN_FRONTEND=noninteractive apt install -y ${eve_apps}
 apt clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/*

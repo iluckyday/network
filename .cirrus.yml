@@ -15,7 +15,7 @@ task:
     - bash clab/build.sh
     - bash clab/clab.sh
     - bash transfer.sh wet /tmp/clab-*.img
-    - bash eve-com/mmdebstrap.sh
-    - bash transfer.sh wet /tmp/eve-com-*.img
     - bash gns3vm/mmdebstrap.sh
     - bash transfer.sh wet /tmp/gns3vm-*.img
+    - bash eve-com/mmdebstrap.sh
+    - bash transfer.sh wet /tmp/eve-com-*.img

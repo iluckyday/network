@@ -76,7 +76,7 @@ mmdebstrap --debug \
            "deb ${MIRROR} stable main contrib non-free" \
            "deb ${MIRROR} stable-updates main contrib non-free" \
            "deb [trusted=yes] https://downloads.osmocom.org/packages/osmocom:/nightly/Debian_${DVERSION_NUM}/ ./" \
-           "deb [trusted=yes] https://repo.mongodb.org/apt/debian ${DVERSION}/mongodb-org/testing main"
+           "deb [trusted=yes] https://repo.mongodb.org/apt/debian ${DVERSION}/mongodb-org/6.0 main"
 
 cat << EOF > ${TARGET_DIR}/etc/fstab
 LABEL=debian-root /        ext4  defaults,noatime                0 0
