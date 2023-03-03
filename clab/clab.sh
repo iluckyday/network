@@ -1,7 +1,8 @@
 #!/bin/sh
 set -x
 
-DVERSION=sid
+DVERSION=$(curl -skL https://www.debian.org/releases/ | grep -oP 'codenamed <em>\K(.*)(?=</em>)')
+DVERSION_NUM=$(curl -skL https://www.debian.org/releases/ | grep -oP '  \K(.*)(?=, codenamed)')
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
@@ -11,12 +12,15 @@ include_apps+=",procps,locales"
 include_apps+=",libsctp1,tcpdump,iproute2,iptables"
 include_apps+=",open5gs"
 include_apps+=",libmnl0,libyaml-0-2"
+include_apps+=",kea"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
 apt install -y --no-install-recommends mmdebstrap qemu-utils upx
+
+wget -qO - https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/Release.key | apt-key add -
 
 IMAGE_DIR=/tmp/clab
 TARGET_DIR=/tmp/clab.tmp
@@ -68,9 +72,10 @@ mmdebstrap --debug \
            --include=${include_apps} \
            ${DVERSION} \
            ${TARGET_DIR} \
-           "deb ${MIRROR} ${DVERSION} main contrib non-free" \
-           "deb [trusted=yes] http://download.opensuse.org/repositories/network:/osmocom:/nightly/Debian_Testing/ ./" \
-           "deb [trusted=yes] http://repo.mongodb.org/apt/debian buster/mongodb-org/5.0 main"
+           "deb ${MIRROR} stable main contrib non-free" \
+           "deb ${MIRROR} stable-updates main contrib non-free" \
+           "deb [trusted=yes] https://downloads.osmocom.org/packages/osmocom:/nightly/Debian_${DVERSION_NUM}/ ./" \
+           "deb [trusted=yes] https://repo.mongodb.org/apt/debian ${DVERSION}/mongodb-org/testing main"
 
 cat << EOF > ${TARGET_DIR}/etc/fstab
 LABEL=debian-root /        ext4  defaults,noatime                0 0
