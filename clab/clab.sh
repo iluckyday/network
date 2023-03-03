@@ -6,15 +6,15 @@ DVERSION_NUM=$(curl -skL https://www.debian.org/releases/ | grep -oP '  \K(.*)(?
 MIRROR=${MIRROR:-http://deb.debian.org/debian}
 LINUX_KERNEL=linux-image-cloud-amd64
 
-include_apps="systemd,systemd-sysv,dbus,ca-certificates,openssh-server"
+include_apps="systemd,systemd-sysv,dbus,ca-certificates"
 include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
 include_apps+=",procps,locales"
 include_apps+=",libsctp1,tcpdump,iproute2,iptables"
 include_apps+=",open5gs"
 include_apps+=",libmnl0,libyaml-0-2"
 # include_apps+=",kea"
-include_apps+=",dnsmasq"
-enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
+# include_apps+=",dnsmasq,openssh-server"
+enable_services="systemd-networkd.service systemd-resolved.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -84,15 +84,6 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
-mkdir -p ${TARGET_DIR}/root/.ssh
-echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
-chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
-
-sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
-sed -i 's/#\?\(PubkeyAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
-sed -i 's/#\?\(PermitEmptyPasswords\s*\).*$/\1 no/' ${TARGET_DIR}/etc/ssh/sshd_config
-sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
-
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
 [Match]
 Name=en*10
@@ -100,6 +91,13 @@ Name=en*10
 [Network]
 DHCP=yes
 IPv6AcceptRA=yes
+EOF
+
+mkdir -p ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d
+cat << "EOF" > ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root - $TERM
 EOF
 
 cat << EOF > ${TARGET_DIR}/root/.bashrc

@@ -156,8 +156,7 @@ busybox wget -qO- https://www.eve-ng.net/focal/eczema@ecze.com.gpg.key | apt-key
 apt update
 cat /var/lib/apt/lists/*_Packages > /var/lib/dpkg/available
 dpkg --configure -a
-sed -i -e 's|build-essential,||g' -e 's|eve-ng-uksm-wg+,||g' /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
-sed -i -e 's|,build-essential||g' -e 's|,eve-ng-uksm-wg+||g' /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
+sed -i '/Depends:/ {s/, *build-essential//;s/, *linux-image-.*-eve-ng-uksm-wg+//}' /var/lib/apt/lists/*eve-ng*_main_binary-amd64_Packages
 DEBIAN_FRONTEND=noninteractive apt install -y ${eve_apps}
 apt clean
 rm -rf /var/cache/apt/* /var/lib/apt/lists/*
@@ -180,7 +179,37 @@ sleep 1
 loopx=$(losetup --show -f -P /tmp/eve-com.raw)
 mount $loopx ${TARGET_DIR}
 sleep 1
+mkdir -p ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d
+cat << "EOF" > ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root - $TERM
+EOF
+
+mkdir -p ${TARGET_DIR}/etc/systemd/system-environment-generators
+cat << EOF > ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
+#!/bin/sh
+echo 'PYTHONDONTWRITEBYTECODE=1'
+echo 'PYTHONSTARTUP=/usr/lib/pythonstartup'
+EOF
+chmod +x ${TARGET_DIR}/etc/systemd/system-environment-generators/20-python
+
+cat << EOF > ${TARGET_DIR}/etc/profile.d/python.sh
+#!/bin/sh
+export PYTHONDONTWRITEBYTECODE=1 PYTHONSTARTUP=/usr/lib/pythonstartup
+EOF
+
+cat << EOF > ${TARGET_DIR}/usr/lib/pythonstartup
+import readline
+import time
+readline.add_history("# " + time.asctime())
+readline.set_history_length(-1)
+EOF
+
 chroot ${TARGET_DIR} /bin/bash -cx "
+rm -rf /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
+find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
+find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -prune -exec rm -rf {} +
 dd if=/dev/zero of=/tmp/bigfile || true
 sync
 rm /tmp/bigfile
