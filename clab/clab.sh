@@ -12,7 +12,8 @@ include_apps+=",procps,locales"
 include_apps+=",libsctp1,tcpdump,iproute2,iptables"
 include_apps+=",open5gs"
 include_apps+=",libmnl0,libyaml-0-2"
-include_apps+=",kea"
+# include_apps+=",kea"
+include_apps+=",dnsmasq"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
@@ -20,7 +21,7 @@ export DEBIAN_FRONTEND=noninteractive
 apt update
 apt install -y --no-install-recommends mmdebstrap qemu-utils upx
 
-wget -qO - https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_10/Release.key | apt-key add -
+curl -skL https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_${DVERSION_NUM}/Release.key | gpg --dearmour -o /etc/apt/trusted.gpg.d/open5gs_debian_${DVERSION_NUM}.gpg
 
 IMAGE_DIR=/tmp/clab
 TARGET_DIR=/tmp/clab.tmp
