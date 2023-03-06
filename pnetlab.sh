@@ -3,7 +3,7 @@ set -x
 
 UBUNTU_VERSION=$(curl -skL https://www.eve-ng.net/index.php/documentation/installation/system-requirement | awk -F' ' '/>Ubuntu/ {print tolower($4)}')
 PSH=$(curl -skL "https://unetlab.cloud/api/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}" | grep -oP 'install_pnetlab_.*\.sh')
-PURL="https://unetlab.cloud/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}/${PSH}"
+PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}/${PSH}"
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
@@ -88,7 +88,7 @@ mmdebstrap --debug \
            "deb ${IMIRROR} ${UBUNTU_VERSION} main restricted universe multiverse" \
            "deb ${IMIRROR} ${UBUNTU_VERSION}-updates main restricted universe multiverse" \
            "deb ${IMIRROR} ${UBUNTU_VERSION}-security main restricted universe multiverse" \
-           "deb [trusted=yes]  ${LATEST_LTS} main"
+           "deb [trusted=yes] https://ppa.launchpadcontent.net/ondrej/php/ubuntu ${UBUNTU_VERSION} main"
 
 mount -t proc none ${TARGET_DIR}/proc
 mount -o bind /sys ${TARGET_DIR}/sys
@@ -235,9 +235,7 @@ systemctl disable $disable_services
 
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
-"
 
-chroot ${TARGET_DIR} /bin/bash -cx "
 rm -rf /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
 find /usr/*/locale -mindepth 1 -maxdepth 1 ! -name 'en' -prune -exec rm -rf {} +
