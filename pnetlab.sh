@@ -44,7 +44,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
 # include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",extlinux"
+include_apps+=",extlinux,initramfs-tools,busybox"
 include_apps+=",openssh-server"
 include_apps+=",mariadb-server,qemu-system-x86,apache2"
 include_apps+=",$PHP_PKGS"
@@ -58,7 +58,7 @@ apt install -y --no-install-recommends mmdebstrap qemu-system-x86 qemu-utils
 
 TARGET_DIR=/tmp/pnetlab
 
-qemu-img create -f raw /tmp/pnetlab.raw 2G
+qemu-img create -f raw /tmp/pnetlab.raw 5G
 loopx=$(losetup --show -f -P /tmp/pnetlab.raw)
 
 mkfs.ext4 -F -L pnetlab-root -b 1024 -I 128 -O "^has_journal" $loopx
@@ -220,22 +220,28 @@ PROMPT 0
 TIMEOUT 0
 DEFAULT pnetlab
 LABEL pnetlab
-        LINUX /vmlinuz
-        INITRD /initrd.img
+        LINUX /boot/vmlinuz
+        INITRD /boot/initrd.img
         APPEND root=LABEL=pnetlab-root console=ttyS0 quiet net.ifnames=0
 EOF
 
 echo PNETLab pkgs ...
 find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --no-debsig --unpack --instdir ${TARGET_DIR} {} \;
 
+KVERSION=$(ls ${TARGET_DIR}/boot/vmlinuz-*-pnetlab*)
+KVERSION=${KVERSION#*vmlinuz-}
+
 chroot ${TARGET_DIR} /bin/bash -c "
-ln -sf boot/vmlinuz-*-pnetlab* /vmlinuz
-ln -sf boot/initrd.img-*-pnetlab* /initrd.img
-systemctl enable $enable_services
-systemctl disable $disable_services
+update-initramfs -c -k ${KVERSION}
+cd /boot
+ln -sf vmlinuz-*-pnetlab* vmlinuz
+ln -sf initrd.img-*-pnetlab* initrd.img
 
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
+
+systemctl enable $enable_services
+systemctl disable $disable_services
 
 rm -rf /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
