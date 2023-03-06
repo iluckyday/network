@@ -11,11 +11,9 @@ task:
     WXPUSHER_APPTOKEN: ENCRYPTED[514c32d7dce1dd0f587950daa8c4c97b53df0977abf91718da21a38e131d80c06dd06776628ded0a65508367c17d87dc]
     WXPUSHER_UID: ENCRYPTED[6d4e93a3483ae6cd34997830270935319f6d2969363ea44dc1c008e13a459eaf0cc3f2b2e718f5dba51aee952203c1d2]
   setup_script:
-    - bash clab/build-gtp5g.sh
-    - bash clab/build.sh
-    - bash clab/clab.sh
-    - bash transfer.sh wet /tmp/clab-*.img
     - bash gns3vm/mmdebstrap.sh
     - bash transfer.sh wet /tmp/gns3vm-*.img
+    - bash pnetlab.sh
+    - bash transfer.sh wet /tmp/pnetlab-*-raw.img
     - bash eve-com/mmdebstrap.sh
     - bash transfer.sh wet /tmp/eve-com-*.img
