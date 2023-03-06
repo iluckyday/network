@@ -7,7 +7,7 @@ PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
-PHP_PKGS=$('/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^php/)phpapp=phpapp","name;m++}}END{print substr(phpapp,2)}' install_pnetlab.sh)
+PHP_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^php/)phpapp=phpapp","name;m++}}END{print substr(phpapp,2)}' install_pnetlab.sh)
 
 cat << "EOF" > /usr/bin/modeb
 #!/bin/bash
@@ -44,6 +44,7 @@ LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
 # include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
+include_apps+=",extlinux"
 include_apps+=",openssh-server"
 include_apps+=",mariadb-server,qemu-system-x86,apache2"
 include_apps+=",$PHP_PKGS"
@@ -225,7 +226,7 @@ LABEL pnetlab
 EOF
 
 echo PNETLab pkgs ...
-find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --no-debsig --unpack {} ${TARGET_DIR} \;
+find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --no-debsig --unpack --instdir ${TARGET_DIR} {} \;
 
 chroot ${TARGET_DIR} /bin/bash -c "
 ln -sf boot/vmlinuz-*-pnetlab* /vmlinuz
