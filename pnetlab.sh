@@ -2,12 +2,14 @@
 set -x
 
 UBUNTU_VERSION=$(curl -skL https://www.eve-ng.net/index.php/documentation/installation/system-requirement | awk -F' ' '/>Ubuntu/ {print tolower($4)}')
-PSH=$(curl -skL "https://unetlab.cloud/api/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}" | grep -oP 'install_pnetlab_.*\.sh')
+PSH=$(curl -skL "https://unetlab.cloud/api/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}" | grep -oP 'install_pnetlab_v.*\.sh')
 PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}/${PSH}"
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
-PHP_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^php/)phpapp=phpapp","name;m++}}END{print substr(phpapp,2)}' install_pnetlab.sh)
+PHP_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^php/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
+TOMCAT_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^tomcat/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
+LIBYAML_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^libyaml/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
 
 cat << "EOF" > /usr/bin/modeb
 #!/bin/bash
@@ -21,7 +23,7 @@ dpkg -x "$DEBFILE" "$TMPDIR"
 dpkg --control "$DEBFILE" "$TMPDIR"/DEBIAN
 
 sed -i '/Depends:/d' "$TMPDIR"/DEBIAN/control
-sed -i '2i\exit 0' "$TMPDIR"/DEBIAN/preinst &>/dev/null
+sed -i '2i\exit 0' "$TMPDIR"/DEBIAN/*inst &>/dev/null
 chmod 0755 "$TMPDIR"/DEBIAN/*inst &>/dev/null
 chmod 0755 "$TMPDIR"/DEBIAN/*rm &>/dev/null
 
@@ -47,9 +49,9 @@ include_apps="systemd,systemd-sysv,ca-certificates,locales"
 include_apps+=",extlinux,initramfs-tools,busybox"
 include_apps+=",openssh-server"
 include_apps+=",mariadb-server,qemu-system-x86,apache2"
-include_apps+=",$PHP_PKGS"
+include_apps+=",$PHP_PKGS,$TOMCAT_PKGS,$LIBYAML_PKGS"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
-disable_services="fstrim.timer motd-news.timer systemd-timesyncd.service"
+disable_services="apt-daily-upgrade.timer apt-daily.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
 add-apt-repository ppa:ondrej/php
@@ -193,6 +195,12 @@ Name=pnet9
 Kind=bridge
 EOF
 
+cat << EOF > ${TARGET_DIR}/etc/systemd/network/10-nat0.netdev
+[NetDev]
+Name=nat0
+Kind=bridge
+EOF
+
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-bind-pnet0.network
 [Match]
 Name=eth0
@@ -227,6 +235,20 @@ EOF
 
 echo PNETLab pkgs ...
 find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --no-debsig --unpack --instdir ${TARGET_DIR} {} \;
+
+sed -i '/ovfconfig.sh/d' ${TARGET_DIR}/etc/profile.d/ovf.sh
+sed -i '2i\exit 0' ${TARGET_DIR}/opt/ovf/ovfstartup.sh
+
+NATADDRESS=$(grep -oP "address \K([0-9]{1,3}[\.]){3}[0-9]{1,3}" ${TARGET_DIR}/opt/ovf/ovfconfig.sh)
+cat << EOF > ${TARGET_DIR}/etc/systemd/network/30-static-nat0.network
+[Match]
+Name=nat0
+
+[Network]
+DHCPServer=yes
+Address=${NATADDRESS}/24
+IPMasquerade=1
+EOF
 
 KVERSION=$(ls ${TARGET_DIR}/boot/vmlinuz-*-pnetlab*)
 KVERSION=${KVERSION#*vmlinuz-}
