@@ -7,9 +7,36 @@ PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
-PHP_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^php/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
-TOMCAT_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^tomcat/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
-LIBYAML_PKGS=$(awk '/apt-get install/ {n=split($0,app);m=1;for(i=1;i<=n;i++){name=app[i];if(name ~ /^libyaml/)iapp=iapp","name;m++}}END{print substr(iapp,2)}' install_pnetlab.sh)
+NO_PKGS="
+ifupdown
+unzip 
+resolvconf
+duc
+ntpdate
+vim
+dos2unix
+build-essential
+cpulimit
+dmidecode
+genisoimage
+pastebinit
+logrotate
+lsb-release
+lvm2
+ntp
+uml-utilities
+zip
+python2
+mysql-server
+udhcpd
+"
+
+PNETLAB_PKGS="mariadb-server"
+
+for pkg in ${NO_PKGS}
+do
+	PNETLAB_PKGS+=$(awk '/apt-get install -y/ {sub(/apt-get install -y /,"",$0);n=split($0,app);for(i=1;i<=n;i++){name=app[i];if(name!~"^'$pkg'")iapp=iapp","name}}END{print iapp}' install_pnetlab.sh)
+done
 
 cat << "EOF" > /usr/bin/modeb
 #!/bin/bash
@@ -45,11 +72,10 @@ IMIRROR=${IMIRROR:-http://archive.ubuntu.com/ubuntu}
 LINUX_KERNEL=linux-image-kvm
 
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
-# include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools,busybox"
-include_apps+=",extlinux,initramfs-tools,busybox"
+# include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
+include_apps+=",extlinux,initramfs-tools"
 include_apps+=",openssh-server"
-include_apps+=",mariadb-server,qemu-system-x86,apache2"
-include_apps+=",$PHP_PKGS,$TOMCAT_PKGS,$LIBYAML_PKGS"
+include_apps+=",$PNETLAB_PKGS"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily-upgrade.timer apt-daily.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
@@ -81,7 +107,6 @@ mmdebstrap --debug \
            --customize-hook='echo pnetlab > "$1/etc/hostname"' \
            --customize-hook='chroot "$1" locale-gen en_US.UTF-8' \
            --customize-hook='find $1/usr/*/locale -mindepth 1 -maxdepth 1 ! -name "en*" ! -name "locale-archive" -prune -exec rm -rf {} +' \
-           --customize-hook='find $1/usr -type d -name __pycache__ -prune -exec rm -rf {} +' \
            --customize-hook='rm -rf $1/etc/localtime $1/usr/share/doc $1/usr/share/man $1/usr/share/i18n $1/usr/share/X11 $1/usr/share/iso-codes $1/tmp/* $1/var/log/* $1/var/tmp/* $1/var/cache/apt/*' \
            --components="main restricted universe multiverse" \
            --variant=apt \
@@ -264,6 +289,8 @@ extlinux -i /boot/syslinux
 
 systemctl enable $enable_services
 systemctl disable $disable_services
+
+ldconfig
 
 rm -rf /usr/lib/udev/hwdb.d /usr/lib/udev/hwdb.bin
 find /usr -type d -name __pycache__ -prune -exec rm -rf {} +
