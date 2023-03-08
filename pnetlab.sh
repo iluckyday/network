@@ -7,9 +7,12 @@ PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
+ALL_T_PKGS=$(awk '/apt-get install -y/ {sub(/apt-get install -y /,"",$0);n=split($0,app);for(i=1;i<=n;i++){iapp=iapp","app[i]}}END{print substr(iapp,2)}' install_pnetlab.sh)
+readarray -d , -t ALL_PKGS <<< "$ALL_T_PKGS"
+
 NO_PKGS="
 ifupdown
-unzip 
+unzip
 resolvconf
 duc
 ntpdate
@@ -31,11 +34,26 @@ mysql-server
 udhcpd
 "
 
+for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
+do
+	for pkg in ${NO_PKGS}
+	do
+		if [ "$pkg" = "${ALL_PKGS[n]}" ]
+		then
+			unset ALL_PKGS[n]
+		fi
+	done
+done
+
 PNETLAB_PKGS="mariadb-server"
 
-for pkg in ${NO_PKGS}
+for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
 do
-	PNETLAB_PKGS+=$(awk '/apt-get install -y/ {sub(/apt-get install -y /,"",$0);n=split($0,app);for(i=1;i<=n;i++){name=app[i];if(name!~"^'$pkg'")iapp=iapp","name}}END{print iapp}' install_pnetlab.sh)
+	if [ "${ALL_PKGS[n]}" = "" ]
+	then
+		continue
+	fi
+	PNETLAB_PKGS+=",""${ALL_PKGS[n]}"
 done
 
 cat << "EOF" > /usr/bin/modeb
