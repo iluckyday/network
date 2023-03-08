@@ -32,6 +32,11 @@ zip
 python2
 mysql-server
 udhcpd
+libdpkg-perl
+pkg-config
+default-jdk
+default-jdk-headless
+libtool
 "
 
 for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
@@ -45,7 +50,8 @@ do
 	done
 done
 
-PNETLAB_PKGS="mariadb-server"
+PNETLAB_PKGS="sudo"
+PNETLAB_PKGS+=",mariadb-server"
 
 for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
 do
