@@ -31,7 +31,6 @@ zip
 python2
 mysql-server
 udhcpd
-uml-utilities
 libdpkg-perl
 pkg-config
 default-jdk
@@ -285,6 +284,7 @@ LABEL pnetlab
 EOF
 
 echo PNETLab pkgs ...
+sed -i '/uml-net/d' ${TARGET_DIR}/var/lib/dpkg/statoverride
 find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --no-debsig --unpack --instdir ${TARGET_DIR} {} \;
 
 sed -i '/ovfconfig.sh/d' ${TARGET_DIR}/etc/profile.d/ovf.sh
@@ -303,6 +303,11 @@ sed -i '2i\exit 0' ${TARGET_DIR}/opt/ovf/ovfstartup.sh
 ## docker pull eveng/eve-wireshark-focal
 #docker pull linuxserver/wireshark
 #docker tag linuxserver/wireshark pnetlab/pnet-wireshark
+#cat << EOF > Dockerfile
+#FROM docker.hub/linuxserver/wireshark
+#RUN echo wireshark -k -i eth0 > /defaults/autostart
+#EOF                                                                                                                                                                                                            
+#docker build -t pnetlab/pnet-wireshark .
 #systemctl stop docker
 
 NATADDRESS=$(grep -oP "address \K([0-9]{1,3}[\.]){3}[0-9]{1,3}" ${TARGET_DIR}/opt/ovf/ovfconfig.sh)
