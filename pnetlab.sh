@@ -31,6 +31,7 @@ zip
 python2
 mysql-server
 udhcpd
+uml-utilities
 libdpkg-perl
 pkg-config
 default-jdk
