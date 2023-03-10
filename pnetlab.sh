@@ -27,7 +27,6 @@ logrotate
 lsb-release
 lvm2
 ntp
-uml-utilities
 zip
 python2
 mysql-server
@@ -50,7 +49,9 @@ do
 	done
 done
 
-PNETLAB_PKGS="sudo"
+PNETLAB_PKGS="sudo,openvswitch-switch"
+# for qemu
+PNETLAB_PKGS+=",libsdl2-2.0-0,libcapstone3,libgtk-3-0,libgtk-3-0,,libnfs13,libvdeplug2,libvte-2.91-0,libxenmisc4.11,libxendevicemodel1,libxenevtchn1,libxenforeignmemory1,libxengnttab1,libxenstore3.0,libxentoolcore1"
 PNETLAB_PKGS+=",mariadb-server"
 
 for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
@@ -98,10 +99,10 @@ LINUX_KERNEL=linux-image-kvm
 include_apps="systemd,systemd-sysv,ca-certificates,locales"
 # include_apps+=",${LINUX_KERNEL},extlinux,initramfs-tools"
 include_apps+=",extlinux,initramfs-tools"
-include_apps+=",openssh-server"
+include_apps+=",openssh-server,busybox"
 include_apps+=",$PNETLAB_PKGS"
 enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
-disable_services="apt-daily-upgrade.timer apt-daily.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
+disable_services="apt-daily-upgrade.timer apt-daily.timer fstrim.timer motd-news.timer e2scrub_all.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
 add-apt-repository ppa:ondrej/php
@@ -287,6 +288,21 @@ find ${PNETWORKDIR} -name *.modfied.deb -exec dpkg --force-all --no-triggers --n
 
 sed -i '/ovfconfig.sh/d' ${TARGET_DIR}/etc/profile.d/ovf.sh
 sed -i '2i\exit 0' ${TARGET_DIR}/opt/ovf/ovfstartup.sh
+
+#systemctl stop docker
+#mkdir -p ${TARGET_DIR}/var/lib/docker
+#STORAGE_DRIVER=$(awk -F \" '/storage-driver/ {print $4}' ${TARGET_DIR}/etc/docker/daemon.json)
+#cat << EOF > etc/docker/daemon.json
+#{
+# "storage-driver": "${STORAGE_DRIVER}",
+# "graph":"${TARGET_DIR}/var/lib/docker"
+#}
+#EOF
+#systemctl start docker
+## docker pull eveng/eve-wireshark-focal
+#docker pull linuxserver/wireshark
+#docker tag linuxserver/wireshark pnetlab/pnet-wireshark
+#systemctl stop docker
 
 NATADDRESS=$(grep -oP "address \K([0-9]{1,3}[\.]){3}[0-9]{1,3}" ${TARGET_DIR}/opt/ovf/ovfconfig.sh)
 cat << EOF > ${TARGET_DIR}/etc/systemd/network/30-static-nat0.network
