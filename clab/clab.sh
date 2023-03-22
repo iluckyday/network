@@ -84,22 +84,6 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
-cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
-[Match]
-Name=en*10
-
-[Network]
-DHCP=yes
-IPv6AcceptRA=yes
-EOF
-
-mkdir -p ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d
-cat << "EOF" > ${TARGET_DIR}/etc/systemd/system/serial-getty@ttyS0.service.d/autologin.conf
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty -o '-p -f -- \\u' --noclear --autologin root - $TERM
-EOF
-
 cat << EOF > ${TARGET_DIR}/root/.bashrc
 export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null
 EOF
@@ -135,11 +119,9 @@ echo UPX mongo
 upx -9 ${TARGET_DIR}/usr/bin/mongo ${TARGET_DIR}/usr/bin/mongod
 
 chroot ${TARGET_DIR} /bin/bash -c "
-systemctl enable $enable_services
 systemctl disable $disable_services
-ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
-ldconfig
 
+ldconfig
 depmod -a $KVERSION
 
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
