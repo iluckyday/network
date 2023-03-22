@@ -96,7 +96,7 @@ DEFAULT clab
 LABEL clab
         LINUX /vmlinuz
         INITRD /initrd.img
-        APPEND root=LABEL=debian-root quiet
+        APPEND root=LABEL=debian-root quiet console=ttyS0
 EOF
 
 echo copy build files
