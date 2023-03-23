@@ -13,8 +13,8 @@ include_apps+=",libsctp1,tcpdump,iproute2,iptables"
 include_apps+=",open5gs"
 include_apps+=",libmnl0,libyaml-0-2"
 # include_apps+=",kea"
-# include_apps+=",dnsmasq,openssh-server"
-enable_services="systemd-networkd.service systemd-resolved.service"
+include_apps+=",openssh-server"
+enable_services="systemd-networkd.service systemd-resolved.service ssh.service"
 disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e2scrub_all.timer fstrim.timer motd-news.timer systemd-timesyncd.service"
 
 export DEBIAN_FRONTEND=noninteractive
@@ -84,6 +84,15 @@ tmpfs             /tmp     tmpfs mode=1777,size=90%              0 0
 tmpfs             /var/log tmpfs defaults,noatime                0 0
 EOF
 
+mkdir -p ${TARGET_DIR}/root/.ssh
+echo "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIDyuzRtZAyeU3VGDKsGk52rd7b/rJ/EnT8Ce2hwWOZWp" >> ${TARGET_DIR}/root/.ssh/authorized_keys
+chmod 600 ${TARGET_DIR}/root/.ssh/authorized_keys
+
+sed -i 's/#\?\(PermitRootLogin\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PubkeyAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PermitEmptyPasswords\s*\).*$/\1 no/' ${TARGET_DIR}/etc/ssh/sshd_config
+sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
+
 cat << EOF > ${TARGET_DIR}/root/.bashrc
 export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null
 EOF
@@ -119,6 +128,7 @@ echo UPX mongo
 upx -9 ${TARGET_DIR}/usr/bin/mongo ${TARGET_DIR}/usr/bin/mongod
 
 chroot ${TARGET_DIR} /bin/bash -c "
+systemctl enable $enable_services
 systemctl disable $disable_services
 
 ldconfig
