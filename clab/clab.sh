@@ -93,6 +93,14 @@ sed -i 's/#\?\(PubkeyAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_
 sed -i 's/#\?\(PermitEmptyPasswords\s*\).*$/\1 no/' ${TARGET_DIR}/etc/ssh/sshd_config
 sed -i 's/#\?\(PasswordAuthentication\s*\).*$/\1 yes/' ${TARGET_DIR}/etc/ssh/sshd_config
 
+cat << EOF > ${TARGET_DIR}/etc/systemd/network/20-dhcp.network
+[Match]
+Name=en*10
+[Network]
+DHCP=yes
+IPv6AcceptRA=yes
+EOF
+
 cat << EOF > ${TARGET_DIR}/root/.bashrc
 export HISTSIZE=1000 LESSHISTFILE=/dev/null HISTFILE=/dev/null
 EOF
