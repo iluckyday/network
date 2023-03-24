@@ -1,16 +1,11 @@
 #!/bin/sh
 set -x
 
-export DEBIAN_FRONTEND=noninteractive
-apt update
-apt install -y --no-install-recommends sshpass
-
-sleep 1
 systemd-run -G --unit base-build.service \
 qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic \
 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
 -boot c -drive file=/tmp/clab.raw,if=virtio,format=raw,media=disk,snapshot=on \
--netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0
+-netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0,addr=0x0a
 
 sleep 10
 while true
@@ -28,6 +23,7 @@ done
 
 sleep 1
 sshpass -p clab ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 bash -sx << "CMD"
+ln -rsf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 apt update
 DEBIAN_FRONTEND=noninteractive apt install -y curl make cmake gcc g++ linux-headers-cloud-amd64 dwarves git \
                                               libsctp-dev lksctp-tools \
