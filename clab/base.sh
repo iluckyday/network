@@ -19,14 +19,14 @@ disable_services="apt-daily.timer apt-daily-upgrade.timer dpkg-db-backup.timer e
 
 export DEBIAN_FRONTEND=noninteractive
 apt update
-apt install -y --no-install-recommends mmdebstrap qemu-utils upx
+apt install -y --no-install-recommends mmdebstrap qemu-system-x86 qemu-utils upx sshpass
 
 curl -skL https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_${DVERSION_NUM}/Release.key | gpg --dearmour -o /etc/apt/trusted.gpg.d/open5gs_debian_${DVERSION_NUM}.gpg
 
 TARGET_DIR=/tmp/clab.tmp
 
-qemu-img create -f raw /tmp/clab.raw 10G
-loopx=$(losetup --show -f -P /tmp/clab.raw)
+qemu-img create -f raw /tmp/clab.tmp.raw 10G
+loopx=$(losetup --show -f -P /tmp/clab.tmp.raw)
 mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
 
 mkdir -p ${TARGET_DIR}

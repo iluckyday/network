@@ -6,7 +6,7 @@ TARGET_DIR=/tmp/clab
 
 mkdir -p ${IMAGE_DIR} ${TARGET_DIR}
 
-loopx=$(losetup --show -f -P /tmp/clab.raw)
+loopx=$(losetup --show -f -P /tmp/clab.tmp.raw)
 mount $loopx ${TARGET_DIR}
 
 echo copy build files
@@ -35,8 +35,8 @@ depmod -a $KVERSION
 
 IMAGE_SIZE=$(du -s --block-size=1G ${TARGET_DIR} | awk '{print $1}')
 IMAGE_SIZE=$((IMAGE_SIZE+1))
-qemu-img create -f raw /tmp/clab1.raw ${IMAGE_SIZE}G
-loopx=$(losetup --show -f -P /tmp/clab1.raw)
+qemu-img create -f raw /tmp/clab.raw ${IMAGE_SIZE}G
+loopx=$(losetup --show -f -P /tmp/clab.raw)
 mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
 mount $loopx ${IMAGE_DIR}
 
@@ -64,4 +64,4 @@ umount ${IMAGE_DIR}
 sleep 1
 losetup -d $loopx
 
-qemu-img convert -c -f raw -O qcow2 /tmp/clab1.raw /tmp/clab-$(date +"%Y%m%d").img
+qemu-img convert -c -f raw -O qcow2 /tmp/clab.raw /tmp/clab-$(date +"%Y%m%d").img

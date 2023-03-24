@@ -4,7 +4,7 @@ set -x
 systemd-run -G --unit base-build.service \
 qemu-system-x86_64 -machine q35,accel=kvm:hax:hvf:whpx:tcg -cpu kvm64 -smp "$(nproc)" -m 4G -nographic \
 -object rng-random,filename=/dev/urandom,id=rng0 -device virtio-rng-pci,rng=rng0 \
--boot c -drive file=/tmp/clab.raw,if=virtio,format=raw,media=disk,snapshot=on \
+-boot c -drive file=/tmp/clab.tmp.raw,if=virtio,format=raw,media=disk,snapshot=on \
 -netdev user,id=n0,ipv6=off,hostfwd=tcp:127.0.0.1:22222-:22 -device virtio-net,netdev=n0,addr=0x0a
 
 sleep 10
