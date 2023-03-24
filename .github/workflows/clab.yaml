@@ -13,14 +13,14 @@ jobs:
     steps:
       - uses: actions/checkout@main
 
-      - name: Build gtp5g module
-        run: sudo /bin/bash clab/build-gtp5g.sh
+      - name: create base image
+        run: sudo /bin/bash clab/base.sh
 
-      - name: Build free5gc ueransim
-        run: sudo /bin/bash clab/build.sh
+      - name: build gtp5g free5gc ueransim
+        run: sudo /bin/bash clab/base-build.sh
 
       - name: Build clab.img
-        run: sudo /bin/bash clab/clab.sh
+        run: sudo /bin/bash clab/base-clab.sh
 
       - name: Push to transfer
         env:

@@ -23,11 +23,14 @@ apt install -y --no-install-recommends mmdebstrap qemu-utils upx
 
 curl -skL https://download.opensuse.org/repositories/home:/acetcom:/open5gs:/latest/Debian_${DVERSION_NUM}/Release.key | gpg --dearmour -o /etc/apt/trusted.gpg.d/open5gs_debian_${DVERSION_NUM}.gpg
 
-IMAGE_DIR=/tmp/clab
 TARGET_DIR=/tmp/clab.tmp
-BUILD_DIR=/tmp/build
 
-mkdir -p ${IMAGE_DIR} ${TARGET_DIR}
+qemu-img create -f raw /tmp/clab.raw 10G
+loopx=$(losetup --show -f -P /tmp/clab.raw)
+mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
+
+mkdir -p ${TARGET_DIR}
+mount $loopx ${TARGET_DIR}
 
 mmdebstrap --debug \
            --aptopt='Apt::Install-Recommends "false"' \
@@ -116,64 +119,27 @@ LABEL clab
         APPEND root=LABEL=debian-root quiet console=ttyS0
 EOF
 
-echo copy build files
-mkdir -p ${TARGET_DIR}/etc/ueransim
-cp ${BUILD_DIR}/root/UERANSIM-*/config/* ${TARGET_DIR}/etc/ueransim
-cp ${BUILD_DIR}/root/UERANSIM-*/build/* ${TARGET_DIR}/usr/bin
-
-mkdir -p ${TARGET_DIR}/etc/free5gc ${TARGET_DIR}/var/lib/free5gc/webconsole
-cp -a ${BUILD_DIR}/root/free5gc/config/* ${TARGET_DIR}/etc/free5gc
-for i in $(cd ${BUILD_DIR}/root/free5gc/bin;ls);do
-	cp -a ${BUILD_DIR}/root/free5gc/bin/$i ${TARGET_DIR}/usr/bin/free5gc-${i}d
-done
-cp -a /tmp/free5gc/webconsole/bin/webconsole ${TARGET_DIR}/usr/bin/free5gc-webconsole
-cp -a /tmp/free5gc/webconsole/public ${TARGET_DIR}/var/lib/free5gc/webconsole
-
-cp -a /tmp/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
-KVERSION=$(ls -d ${TARGET_DIR}/lib/modules/* | sed "s|${TARGET_DIR}/lib/modules/||")
-
-echo UPX mongo
-upx -9 ${TARGET_DIR}/usr/bin/mongo ${TARGET_DIR}/usr/bin/mongod
+mount -t proc none ${TARGET_DIR}/proc
+mount -o bind /sys ${TARGET_DIR}/sys
+mount -o bind /dev ${TARGET_DIR}/dev
 
 chroot ${TARGET_DIR} /bin/bash -c "
 systemctl enable $enable_services
 systemctl disable $disable_services
 
-ldconfig
-depmod -a $KVERSION
-
 rm -rf /etc/systemd/system/multi-user.target.wants/open5gs-*.service
-"
 
-IMAGE_SIZE=$(du -s --block-size=1G ${TARGET_DIR} | awk '{print $1}')
-IMAGE_SIZE=$((IMAGE_SIZE+1))
-qemu-img create -f raw /tmp/clab.raw ${IMAGE_SIZE}G
-loopx=$(losetup --show -f -P /tmp/clab.raw)
-mkfs.ext4 -F -L debian-root -b 1024 -I 128 -O "^has_journal" $loopx
-mount $loopx ${IMAGE_DIR}
-
-sleep 1
-sync ${TARGET_DIR}
-cp -a ${TARGET_DIR}/* ${IMAGE_DIR}
-
-mount -t proc none ${IMAGE_DIR}/proc
-mount -o bind /sys ${IMAGE_DIR}/sys
-mount -o bind /dev ${IMAGE_DIR}/dev
-
-chroot ${IMAGE_DIR} /bin/bash -c "
 dd if=/usr/lib/EXTLINUX/mbr.bin of=$loopx
 extlinux -i /boot/syslinux
 "
 
 sleep 1
-sync ${IMAGE_DIR}
+sync ${TARGET_DIR}
 sleep 1
-umount ${IMAGE_DIR}/dev ${IMAGE_DIR}/proc ${IMAGE_DIR}/sys
+umount ${TARGET_DIR}/dev ${TARGET_DIR}/proc ${TARGET_DIR}/sys
 sleep 1
 killall provjobd || true
 sleep 1
-umount ${IMAGE_DIR}
+umount ${TARGET_DIR}
 sleep 1
 losetup -d $loopx
-
-qemu-img convert -c -f raw -O qcow2 /tmp/clab.raw /tmp/clab-$(date +"%Y%m%d").img
