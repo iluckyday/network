@@ -53,9 +53,8 @@ mmdebstrap --debug \
            --dpkgopt='path-include=/usr/share/locale/locale.alias' \
            --dpkgopt='path-exclude=/usr/lib/udev/hwdb.bin' \
            --dpkgopt='path-exclude=/usr/lib/udev/hwdb.d/*' \
-           --dpkgopt='path-exclude=/usr/bin/mongosh' \
-           --dpkgopt='path-exclude=/usr/bin/mongos' \
            --dpkgopt='path-exclude=/usr/bin/bsondump' \
+           --dpkgopt='path-exclude=/usr/bin/mongos' \
            --dpkgopt='path-exclude=/usr/bin/mongodump' \
            --dpkgopt='path-exclude=/usr/bin/mongoexport' \
            --dpkgopt='path-exclude=/usr/bin/mongofiles' \
@@ -118,6 +117,9 @@ LABEL clab
         INITRD /initrd.img
         APPEND root=LABEL=debian-root quiet console=ttyS0
 EOF
+
+curl -skL -o ${TARGET_DIR}/usr/bin/open5gs-dbctl https://github.com/open5gs/open5gs/raw/main/misc/db/open5gs-dbctl
+chmod +x ${TARGET_DIR}/usr/bin/open5gs-dbctl
 
 mount -t proc none ${TARGET_DIR}/proc
 mount -o bind /sys ${TARGET_DIR}/sys
