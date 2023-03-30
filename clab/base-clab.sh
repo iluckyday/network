@@ -26,7 +26,7 @@ cp -a /tmp/gtp5g.ko ${TARGET_DIR}/lib/modules/*/kernel/drivers/net/
 KVERSION=$(ls -d ${TARGET_DIR}/lib/modules/* | sed "s|${TARGET_DIR}/lib/modules/||")
 
 echo UPX mongo
-upx -9 ${TARGET_DIR}/usr/bin/mongo ${TARGET_DIR}/usr/bin/mongod
+upx -9 ${TARGET_DIR}/usr/bin/mongosh ${TARGET_DIR}/usr/bin/mongod
 
 chroot ${TARGET_DIR} /bin/bash -cx "
 ldconfig

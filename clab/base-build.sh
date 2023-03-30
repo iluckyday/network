@@ -35,12 +35,17 @@ ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
 cd /root/gtp5g
 make
 
+curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C /root
+
+cd /root/UERANSIM-*
+make
+
 ln -sf /usr/share/nodejs/yarn/bin/yarn /usr/bin/yarn
-git clone --depth=1 --recursive https://github.com/free5gc/free5gc /tmp/free5gc
-cd /tmp/free5gc
+git clone --depth=1 --recursive https://github.com/free5gc/free5gc /root/free5gc
+cd /root/free5gc
 make webconsole
 
-UIDIR="/tmp/free5gc/webconsole/public"
+UIDIR="/root/free5gc/webconsole/public"
 HTMLFILE=$UIDIR"/index.html"
 
 BOOTSTRAPCDN_TAIL=$(grep -oP 'href="https://maxcdn.bootstrapcdn.com\K(.*?)(?=")' $HTMLFILE)
@@ -77,12 +82,6 @@ for url in $FONTS_URLS; do
 	sed -i 's|'$PREFIX'|/fonts|' $UIDIR/$GOOGLEAPIS_FILE
 done
 
-curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C /root
-git clone --depth=1 --recursive https://github.com/free5gc/free5gc /root/free5gc
-
-cd /root/UERANSIM-*
-make
-
 cd /root/free5gc
 go env -w GOMODCACHE=/tmp
 sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
@@ -93,8 +92,8 @@ ls -lh /root/UERANSIM-*/build
 
 ls -lh /root/free5gc/config
 ls -lh /root/free5gc/bin
-ls -lh /tmp/free5gc/webconsole/bin
-ls -lh /tmp/free5gc/webconsole/public
+ls -lh /root/free5gc/webconsole/bin
+ls -lh /root/free5gc/webconsole/public
 CMD
 
 sleep 1
@@ -102,7 +101,7 @@ mkdir -p /tmp/ueransim /tmp/free5gc/webconsole
 sshpass -p clab scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:/root/gtp5g/gtp5g.ko /tmp
 sshpass -p clab scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:"/root/UERANSIM-*/config /root/UERANSIM-*/build" /tmp/ueransim
 sshpass -p clab scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:"/root/free5gc/config /root/free5gc/bin" /tmp/free5gc
-sshpass -p clab scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:"/tmp/free5gc/webconsole/bin /tmp/free5gc/webconsole/public" /tmp/free5gc/webconsole
+sshpass -p clab scp -r -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -P 22222 root@127.0.0.1:"/root/free5gc/webconsole/bin /root/free5gc/webconsole/public" /tmp/free5gc/webconsole
 
 sleep 1
 sshpass -p clab ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p 22222 -l root 127.0.0.1 poweroff
