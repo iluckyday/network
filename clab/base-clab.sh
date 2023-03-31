@@ -43,8 +43,6 @@ mount $loopx ${IMAGE_DIR}
 sleep 1
 sync ${TARGET_DIR}
 cp -a ${TARGET_DIR}/* ${IMAGE_DIR}
-curl -skL -o ${IMAGE_DIR}/usr/bin/open5gs-dbctl https://github.com/open5gs/open5gs/raw/main/misc/db/open5gs-dbctl
-chmod +x ${IMAGE_DIR}/usr/bin/open5gs-dbctl
 
 mount -t proc none ${IMAGE_DIR}/proc
 mount -o bind /sys ${IMAGE_DIR}/sys
