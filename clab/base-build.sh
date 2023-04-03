@@ -28,7 +28,16 @@ apt update
 DEBIAN_FRONTEND=noninteractive apt install -y curl make cmake gcc g++ linux-headers-cloud-amd64 dwarves git \
                                               libsctp-dev lksctp-tools \
                                               golang upx \
-                                              nodejs yarnpkg
+                                              nodejs yarnpkg \
+                                              libfftw3-dev \
+                                              libmbedtls-dev \
+                                              libboost-program-options-dev \
+                                              libconfig++-dev \
+                                              libsctp-dev \
+                                              libuhd-dev \
+                                              libzmq3-dev \
+                                              libyaml-cpp-dev \
+                                              libgtest-dev
 
 git clone --depth=1 https://github.com/free5gc/gtp5g /root/gtp5g
 ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
@@ -87,6 +96,20 @@ go env -w GOMODCACHE=/tmp
 sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
 make
 
+git clone --depth=1 https://github.com/srsran/srsRAN_4G /root/srsRAN_4G
+cd srsRAN
+mkdir build
+cd build
+cmake ../
+make
+
+git clone --depth=1 https://github.com/srsRAN/srsRAN_Project /root/srsRAN_Project
+cd srsRAN_Project
+mkdir build
+cd build
+cmake ../
+make
+
 ls -lh /root/UERANSIM-*/config
 ls -lh /root/UERANSIM-*/build
 
@@ -94,6 +117,9 @@ ls -lh /root/free5gc/config
 ls -lh /root/free5gc/bin
 ls -lh /root/free5gc/webconsole/bin
 ls -lh /root/free5gc/webconsole/public
+
+ls -lh /root/srsRAN/build
+ls -lh /root/srsRAN_Project/build
 CMD
 
 sleep 1

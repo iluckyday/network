@@ -1,4 +1,4 @@
-name: clab.img
+name: clab
 
 on:
   schedule:
@@ -19,8 +19,11 @@ jobs:
       - name: build gtp5g free5gc ueransim
         run: sudo /bin/bash clab/base-build.sh
 
-      - name: Build clab.img
+      - name: build clab.img
         run: sudo /bin/bash clab/base-clab.sh
+
+      - name: get clab docker images
+        run: sudo /bin/bash clab/docker-images.sh
 
       - name: Push to transfer
         env:
@@ -28,3 +31,4 @@ jobs:
           WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
         run: |
           bash transfer.sh wet /tmp/clab-*.img
+          bash transfer.sh wet /tmp/clab-*.tar.xz
