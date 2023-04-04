@@ -42,17 +42,17 @@ DEBIAN_FRONTEND=noninteractive apt install -y curl make cmake gcc g++ linux-head
 git clone --depth=1 https://github.com/free5gc/gtp5g /root/gtp5g
 ln -sf /sys/kernel/btf/vmlinux /lib/modules/*/build/
 cd /root/gtp5g
-make
+make -j
 
 curl -skL https://github.com/aligungr/UERANSIM/archive/refs/heads/master.tar.gz | tar -xz -C /root
 
 cd /root/UERANSIM-*
-make
+make -j
 
 ln -sf /usr/share/nodejs/yarn/bin/yarn /usr/bin/yarn
 git clone --depth=1 --recursive https://github.com/free5gc/free5gc /root/free5gc
 cd /root/free5gc
-make webconsole
+make -j webconsole
 
 UIDIR="/root/free5gc/webconsole/public"
 HTMLFILE=$UIDIR"/index.html"
@@ -94,21 +94,21 @@ done
 cd /root/free5gc
 go env -w GOMODCACHE=/tmp
 sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(ROOT_PATH)/\$@|' Makefile
-make
+make -j
 
 git clone --depth=1 https://github.com/srsran/srsRAN_4G /root/srsRAN_4G
 cd /root/srsRAN_4G
 mkdir build
 cd build
 cmake ../
-make
+make -j
 
 git clone --depth=1 https://github.com/srsRAN/srsRAN_Project /root/srsRAN_Project
 cd /root/srsRAN_Project
 mkdir build
 cd build
 cmake ../
-make
+make -j
 
 ls -lh /root/UERANSIM-*/config
 ls -lh /root/UERANSIM-*/build

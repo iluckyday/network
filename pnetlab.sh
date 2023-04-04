@@ -2,12 +2,12 @@
 set -x
 
 UBUNTU_VERSION=$(curl -skL https://www.eve-ng.net/index.php/documentation/installation/system-requirement | awk -F' ' '/>Ubuntu/ {print tolower($4)}')
-PSH=$(curl -skL "https://unetlab.cloud/api/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}" | grep -oP 'install_pnetlab_v.*\.sh')
-PURL="https://unetlab.cloud/api/raw/?path=/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}/${PSH}"
+PSH=$(curl -skL "https://labhub.eu.org/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}" | grep -oP 'install_pnetlab_v.*\.sh')
+PURL="https://labhub.eu.org/UNETLAB%20I/upgrades_pnetlab/${UBUNTU_VERSION}/${PSH}"
 curl -skL -o install_pnetlab.sh "${PURL}"
 PNETLAB_VERSION=$(grep -oP 'pnetlab_\K(.*)(?=_amd64.deb)' install_pnetlab.sh)
 
-ALL_T_PKGS=$(awk '/apt-get install -y/ {sub(/apt-get install -y /,"",$0);n=split($0,app);for(i=1;i<=n;i++){iapp=iapp","app[i]}}END{print substr(iapp,2)}' install_pnetlab.sh)
+ALL_T_PKGS=$(awk '/^apt-get install -y/ {sub(/apt-get install -y /,"",$0);n=split($0,app);for(i=1;i<=n;i++){iapp=iapp","app[i]}}END{print substr(iapp,2)}' install_pnetlab.sh)
 readarray -d , -t ALL_PKGS <<< "$ALL_T_PKGS"
 
 NO_PKGS="
@@ -51,7 +51,7 @@ done
 
 PNETLAB_PKGS="sudo,openvswitch-switch"
 # for qemu
-PNETLAB_PKGS+=",libsdl2-2.0-0,libcapstone3,libgtk-3-0,libgtk-3-0,,libnfs13,libvdeplug2,libvte-2.91-0,libxenmisc4.11,libxendevicemodel1,libxenevtchn1,libxenforeignmemory1,libxengnttab1,libxenstore3.0,libxentoolcore1"
+# PNETLAB_PKGS+=",libsdl2-2.0-0,libcapstone3,libgtk-3-0,libgtk-3-0,,libnfs13,libvdeplug2,libvte-2.91-0,libxenmisc4.11,libxendevicemodel1,libxenevtchn1,libxenforeignmemory1,libxengnttab1,libxenstore3.0,libxentoolcore1"
 PNETLAB_PKGS+=",mariadb-server"
 
 for (( n=0; n < ${#ALL_PKGS[*]}; n++ ))
@@ -89,6 +89,7 @@ chmod +x /usr/bin/modeb
 PNETWORKDIR=/tmp/pnettemp
 mkdir -p $PNETWORKDIR
 
+sed -i -e '/^URL_PNET_QEMU/d' -e '/^URL_PNET_WIRESHARK/d' install_pnetlab.sh
 for i in $(grep '^URL_' install_pnetlab.sh); do wget -P $PNETWORKDIR ${i#*=}; done
 find ${PNETWORKDIR} -name *.zip -exec unzip -d ${PNETWORKDIR} {} \;
 find ${PNETWORKDIR} -name *.deb -exec modeb {} \;
