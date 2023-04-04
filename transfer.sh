@@ -49,7 +49,7 @@ case $END in
 		exit
 esac
 
-t_data=$(/tmp/transfer $END --silent $FILE)
+t_data=$(/tmp/transfer $END $FILE)
 
 FILENAME=$(basename $FILE)
 SIZE="$(du -h $FILE | awk '{print $1}')"

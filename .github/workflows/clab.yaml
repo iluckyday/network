@@ -16,10 +16,10 @@ jobs:
       - name: create base image
         run: sudo /bin/bash clab/base.sh
 
-      - name: build gtp5g free5gc ueransim
+      - name: build
         run: sudo /bin/bash clab/base-build.sh
 
-      - name: build clab.img
+      - name: create clab.img
         run: sudo /bin/bash clab/base-clab.sh
 
       - name: get clab docker images

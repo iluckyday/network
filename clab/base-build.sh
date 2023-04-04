@@ -97,14 +97,14 @@ sed -i -e '/nfs:/i\nfs: LDFLAGS += -s -w' -e 's|CGO_ENABLED=.*|& \&\& upx -9 \$(
 make
 
 git clone --depth=1 https://github.com/srsran/srsRAN_4G /root/srsRAN_4G
-cd srsRAN
+cd /root/srsRAN_4G
 mkdir build
 cd build
 cmake ../
 make
 
 git clone --depth=1 https://github.com/srsRAN/srsRAN_Project /root/srsRAN_Project
-cd srsRAN_Project
+cd /root/srsRAN_Project
 mkdir build
 cd build
 cmake ../
