@@ -25,10 +25,8 @@ jobs:
       - name: get clab docker images
         run: sudo /bin/bash clab/docker-images.sh
 
-      - name: Push to transfer
-        env:
-          WXPUSHER_APPTOKEN: ${{ secrets.WXPUSHER_APPTOKEN }}
-          WXPUSHER_UID: ${{ secrets.WXPUSHER_UID }}
-        run: |
-          bash transfer.sh wet /tmp/clab-*.img
-          bash transfer.sh wet /tmp/clab-*.tar.xz
+      - name: Upload iso artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: clab-img
+          path: /tmp/clab-*.img
